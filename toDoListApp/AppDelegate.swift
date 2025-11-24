@@ -15,7 +15,47 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         // Override point for customization after application launch.
+        checkAndLoadInitialData()
         return true
+    }
+    
+    private func checkAndLoadInitialData() {
+        let userDefaults = UserDefaults.standard
+        let hasLoadedInitialData = userDefaults.bool(forKey: "hasLoadedInitialData")
+        
+        if !hasLoadedInitialData {
+            print("First launch. Loading initial data...")
+            
+            NetworkService.shared.fetchTodos { result in
+                switch result {
+                case .success(let apiTasks):
+                    print("Successfully fetched \(apiTasks.count) tasks from API.")
+                    
+                    // Сохраняем в Core Data и передаем блок кода,
+                    // который выполнится ПОСЛЕ сохранения.
+                    CoreDataService.shared.saveInitialTasks(apiTasks: apiTasks) {
+                        print("Save operation finished. Now verifying data...")
+                        
+                        // Устанавливаем флаг ТОЛЬКО ПОСЛЕ того, как данные сохранились
+                        userDefaults.set(true, forKey: "hasLoadedInitialData")
+                        
+                        // Теперь безопасно получать задачи для проверки
+                        let tasks = CoreDataService.shared.fetchTasks()
+                        print("✅ Fetched \(tasks.count) tasks from Core Data for verification.")
+                        if let firstTask = tasks.first {
+                            print("   First task title: \(firstTask.title)")
+                        } else {
+                            print("   No tasks found in Core Data after save.")
+                        }
+                    }
+                    
+                case .failure(let error):
+                    print("❌ Failed to fetch initial data: \(error)")
+                }
+            }
+        } else {
+            print("Initial data already loaded.")
+        }
     }
 
     // MARK: UISceneSession Lifecycle
