@@ -81,23 +81,24 @@ class TaskListViewController: UIViewController {
             }
         }
         
-        // Обновление одной конкретной ячейки
-        viewModel.onSingleTaskUpdated = { [weak self] taskId in
-            guard let self = self else { return }
-            
-            // Определяем, какой массив данных сейчас активен
-            let dataSource = self.viewModel.isSearching ? self.viewModel.filteredTasks : self.viewModel.tasks
-            
-            // Находим индекс задачи в активном массиве
-            guard let rowIndex = dataSource.firstIndex(where: { $0.id == taskId }) else { return }
-            let indexPathToReload = IndexPath(row: rowIndex, section: 0)
-            
-            // Перезагружаем только эту ячейку
-            DispatchQueue.main.async {
-                self.tableView.reloadRows(at: [indexPathToReload], with: .automatic)
-            }
-        }
-    }
+        // НОВЫЙ ПОДХОД: Обновляем видимую ячейку напрямую
+           viewModel.onSingleTaskUpdated = { [weak self] taskId in
+               guard let self = self else { return }
+               
+               // Находим indexPath задачи с нужным ID
+               let dataSource = self.viewModel.isSearching ? self.viewModel.filteredTasks : self.viewModel.tasks
+               guard let rowIndex = dataSource.firstIndex(where: { $0.id == taskId }) else { return }
+               let indexPath = IndexPath(row: rowIndex, section: 0)
+               
+               // Проверяем, видима ли ячейка для этого indexPath
+               if let visibleCell = self.tableView.cellForRow(at: indexPath) as? TaskTableViewCell {
+                   // Получаем обновленные данные
+                   let updatedTask = self.viewModel.task(at: indexPath)
+                   // Конфигурируем ячейку прямо сейчас, без перезагрузки
+                   visibleCell.configure(with: updatedTask)
+               }
+           }
+       }
     
     // MARK: - Navigation
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {

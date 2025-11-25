@@ -100,6 +100,9 @@ class CoreDataService: CoreDataServiceProtocol {
             apiTasks.forEach { apiTask in
                 let taskEntity = TaskEntity(context: backgroundContext)
                 taskEntity.id = UUID()
+                // НОВОЕ: Сохраняем оригинальный ID с API
+                taskEntity.apiId = Int32(apiTask.id)
+                
                 taskEntity.title = apiTask.todo
                 taskEntity.taskDescription = ""
                 taskEntity.createdDate = Date()
@@ -109,16 +112,11 @@ class CoreDataService: CoreDataServiceProtocol {
             do {
                 try backgroundContext.save()
                 print("✅ Background save finished successfully.")
-                
-                // После завершения сохранения в фоновом потоке,
-                // вызываем completion в главном потоке.
                 DispatchQueue.main.async {
                     completion()
                 }
             } catch {
                 print("❌ Failed to save initial tasks: \(error)")
-                // Даже в случае ошибки лучше вызвать completion,
-                // чтобы не "зависнуть" в ожидании.
                 DispatchQueue.main.async {
                     completion()
                 }
@@ -127,10 +125,17 @@ class CoreDataService: CoreDataServiceProtocol {
     }
     
     /// Получение всех задач из базы данных
+    /// Получение всех задач из базы данных
     func fetchTasks() -> [Task] {
-        // Этот метод тоже остается без изменений.
         let request: NSFetchRequest<TaskEntity> = TaskEntity.fetchRequest()
-        request.sortDescriptors = [NSSortDescriptor(key: "createdDate", ascending: false)]
+        
+        // ИЗМЕНЕНО: Сортируем по apiId, чтобы сохранить порядок с API.
+        // Если apiId nil (для локальных задач), они будут в конце.
+        let primarySortDescriptor = NSSortDescriptor(key: "apiId", ascending: true)
+        // В качестве вторичной сортировки можно использовать createdDate
+        let secondarySortDescriptor = NSSortDescriptor(key: "createdDate", ascending: false)
+        
+        request.sortDescriptors = [primarySortDescriptor, secondarySortDescriptor]
         
         do {
             let taskEntities = try context.fetch(request)

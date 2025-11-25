@@ -38,9 +38,24 @@ class TaskTableViewCell: UITableViewCell {
     }
 
     override func setSelected(_ selected: Bool, animated: Bool) {
-        super.setSelected(selected, animated: animated)
-        // Configure the view for the selected state
-    }
+            super.setSelected(selected, animated: animated)
+        }
+    
+    override func prepareForReuse() {
+            super.prepareForReuse()
+            
+            // Сбрасываем все, что может вызывать конфликты
+            taskId = nil
+            onCheckboxTapped = nil
+            
+            // Важно сбросить и изображение, и текст кнопки
+            checkboxButton.setImage(nil, for: .normal)
+            checkboxButton.setTitle(nil, for: .normal)
+            checkboxButton.setTitleColor(.label, for: .normal) // Возвращаем цвет по умолчанию
+            
+            descriptionLabel.text = nil
+            dateLabel.text = nil
+        }
     
     // MARK: - Configuration
     

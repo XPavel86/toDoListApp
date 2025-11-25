@@ -153,41 +153,49 @@
                         <rect key="frame" x="0.0" y="0.0" width="440" height="956"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <textField opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="248" fixedFrame="YES" contentHorizontalAlignment="left" contentVerticalAlignment="center" text="Название задачи" borderStyle="roundedRect" placeholder="Название задачи" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="36a-xb-uIi">
-                                <rect key="frame" x="20" y="64" width="374" height="34"/>
-                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="01/10/24" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="cgW-vX-MLA">
+                                <rect key="frame" x="16" y="156" width="66" height="21"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                <nil key="textColor"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                            <textField opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="248" misplaced="YES" contentHorizontalAlignment="left" contentVerticalAlignment="center" text="titleTextField" borderStyle="roundedRect" placeholder="Название задачи" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="moG-Vm-Py6">
+                                <rect key="frame" x="20" y="106" width="400" height="34"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="14"/>
                                 <textInputTraits key="textInputTraits"/>
                             </textField>
-                            <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" fixedFrame="YES" editable="NO" text="Описание задачи" translatesAutoresizingMaskIntoConstraints="NO" id="fyq-D3-O1K">
-                                <rect key="frame" x="20" y="161" width="374" height="526"/>
-                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                            <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" misplaced="YES" editable="NO" text="Описание задачи" translatesAutoresizingMaskIntoConstraints="NO" id="fyq-D3-O1K">
+                                <rect key="frame" x="27" y="185" width="397" height="713"/>
                                 <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                                 <color key="textColor" systemColor="labelColor"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="14"/>
                                 <textInputTraits key="textInputTraits" autocapitalizationType="sentences"/>
                             </textView>
-                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="01/10/24" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="cgW-vX-MLA">
-                                <rect key="frame" x="20" y="106" width="66" height="21"/>
-                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
-                                <nil key="textColor"/>
-                                <nil key="highlightedColor"/>
-                            </label>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="WjL-IN-JW7"/>
                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                        <constraints>
+                            <constraint firstItem="fyq-D3-O1K" firstAttribute="bottom" secondItem="WjL-IN-JW7" secondAttribute="bottom" constant="16" id="BxA-Mp-xWf"/>
+                            <constraint firstItem="moG-Vm-Py6" firstAttribute="top" secondItem="WjL-IN-JW7" secondAttribute="top" id="CrW-cE-LnH"/>
+                            <constraint firstItem="cgW-vX-MLA" firstAttribute="top" secondItem="moG-Vm-Py6" secondAttribute="bottom" constant="16" id="PdY-rv-bql"/>
+                            <constraint firstItem="WjL-IN-JW7" firstAttribute="trailing" secondItem="moG-Vm-Py6" secondAttribute="trailing" constant="16" id="Vm9-gj-Uzu"/>
+                            <constraint firstItem="fyq-D3-O1K" firstAttribute="top" secondItem="moG-Vm-Py6" secondAttribute="bottom" constant="45" id="WrK-L0-jFN"/>
+                            <constraint firstItem="fyq-D3-O1K" firstAttribute="leading" secondItem="WjL-IN-JW7" secondAttribute="leading" constant="16" id="Xi7-dR-sIA"/>
+                            <constraint firstItem="WjL-IN-JW7" firstAttribute="trailing" secondItem="fyq-D3-O1K" secondAttribute="trailing" constant="16" id="ay0-qO-riJ"/>
+                            <constraint firstItem="cgW-vX-MLA" firstAttribute="leading" secondItem="moG-Vm-Py6" secondAttribute="leading" id="eKo-OL-flT"/>
+                            <constraint firstItem="moG-Vm-Py6" firstAttribute="leading" secondItem="WjL-IN-JW7" secondAttribute="leading" constant="16" id="ueR-pw-rUg"/>
+                        </constraints>
                     </view>
                     <navigationItem key="navigationItem" id="2an-9K-7c3"/>
                     <connections>
                         <outlet property="dateLabel" destination="cgW-vX-MLA" id="aZN-mP-EBL"/>
                         <outlet property="descriptionTextView" destination="fyq-D3-O1K" id="01C-BQ-HDV"/>
-                        <outlet property="titleTextField" destination="36a-xb-uIi" id="64N-8W-14d"/>
+                        <outlet property="titleTextField" destination="moG-Vm-Py6" id="3ek-EK-MRn"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="qvL-5V-arD" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="-694.20289855072474" y="-1136.413043478261"/>
+            <point key="canvasLocation" x="-695.4545454545455" y="-1136.610878661088"/>
         </scene>
     </scenes>
     <resources>
