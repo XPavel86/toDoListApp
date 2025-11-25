@@ -26,6 +26,14 @@ class TaskListViewModel {
         onDataUpdated?()
     }
     
+    // Метод для изменения статуса задачи
+    func toggleTaskCompletion(for taskId: UUID) {
+        CoreDataService.shared.toggleTaskCompletion(for: taskId) { [weak self] in
+            // После обновления в базе, перезагружаем данные
+            self?.fetchTasks()
+        }
+    }
+    
     // MARK: - Helpers for View
     
     func numberOfRowsInSection() -> Int {

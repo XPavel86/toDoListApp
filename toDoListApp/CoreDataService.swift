@@ -37,6 +37,32 @@ class CoreDataService {
 
     // MARK: - Public Methods
     
+    func toggleTaskCompletion(for taskId: UUID, completion: @escaping () -> Void) {
+        persistentContainer.performBackgroundTask { backgroundContext in
+            let request: NSFetchRequest<TaskEntity> = TaskEntity.fetchRequest()
+            
+            // Ищем задачу по уникальному ID
+            request.predicate = NSPredicate(format: "id == %@", taskId as CVarArg)
+            
+            do {
+                let results = try backgroundContext.fetch(request)
+                if let taskEntity = results.first {
+                    // Меняем статус на противоположный
+                    taskEntity.isCompleted.toggle()
+                    try backgroundContext.save()
+                    print("✅ Task completion status toggled for ID: \(taskId.uuidString)")
+                }
+            } catch {
+                print("❌ Failed to toggle task completion: \(error)")
+            }
+            
+            // Вызываем completion в главном потоке
+            DispatchQueue.main.async {
+                completion()
+            }
+        }
+    }
+    
     /// Сохранение всех задач из API в базу данных
     /// обещание - выполнить  код после завершения операции, 
     func saveInitialTasks(apiTasks: [APITask], completion: @escaping () -> Void) {
