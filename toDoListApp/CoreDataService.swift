@@ -10,7 +10,7 @@ import Foundation
 import CoreData
 import UIKit
 
-class CoreDataService {
+class CoreDataService: CoreDataServiceProtocol {
     
     static let shared = CoreDataService()
     
@@ -156,26 +156,26 @@ class CoreDataService {
     }
     
     func updateTask(id: UUID, title: String, description: String, completion: @escaping () -> Void) {
-        persistentContainer.performBackgroundTask { backgroundContext in
-            let request: NSFetchRequest<TaskEntity> = TaskEntity.fetchRequest()
-            request.predicate = NSPredicate(format: "id == %@", id as CVarArg)
-            
-            do {
-                let results = try backgroundContext.fetch(request)
-                if let taskEntity = results.first {
-                    taskEntity.title = title
-                    taskEntity.taskDescription = description
-                    try backgroundContext.save()
-                    print("✅ Task updated successfully with ID: \(id.uuidString)")
-                }
-            } catch {
-                print("❌ Failed to update task: \(error)")
+        // Используем главный контекст, так как это быстрая операция, инициированная UI
+        let context = self.context
+        
+        let request: NSFetchRequest<TaskEntity> = TaskEntity.fetchRequest()
+        request.predicate = NSPredicate(format: "id == %@", id as CVarArg)
+        
+        do {
+            let results = try context.fetch(request)
+            if let taskEntity = results.first {
+                taskEntity.title = title
+                taskEntity.taskDescription = description
+                try context.save() // Сохраняем прямо в главном контексте
+                print("✅ Task updated successfully with ID: \(id.uuidString)")
             }
-            
-            DispatchQueue.main.async {
-                completion()
-            }
+        } catch {
+            print("❌ Failed to update task: \(error)")
         }
+        
+        // Так как мы в главном потоке, просто вызываем completion
+        completion()
     }
 }
     // Другие CRUD операции (update, delete, create) мы добавим на следующих шагах

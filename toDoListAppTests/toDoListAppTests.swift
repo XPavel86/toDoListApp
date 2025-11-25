@@ -4,33 +4,109 @@
 //
 //  Created by Pavel Dolgopolov on 24.11.2025.
 //
-
 import XCTest
-@testable import toDoListApp
+import CoreData
+@testable import toDoListApp // Импортируем наше приложение
 
-final class toDoListAppTests: XCTestCase {
+final class ToDoListTests: XCTestCase {
+
+    var coreDataService: CoreDataService!
+    var testPersistentContainer: NSPersistentContainer!
 
     override func setUpWithError() throws {
-        // Put setup code here. This method is called before the invocation of each test method in the class.
+        // Этот метод вызывается перед каждым тестом.
+        // Создаем in-memory базу данных для чистоты эксперимента.
+        testPersistentContainer = NSPersistentContainer(name: "ToDoList")
+        
+        let description = NSPersistentStoreDescription()
+        description.type = NSInMemoryStoreType // КЛЮЧЕВОЕ: in-memory store
+        
+        testPersistentContainer.persistentStoreDescriptions = [description]
+        
+        testPersistentContainer.loadPersistentStores { _, error in
+            if let error = error {
+                fatalError("Failed to load test store: \(error)")
+            }
+        }
+        
+        // Создаем экземпляр сервиса с нашей тестовой базой
+        coreDataService = CoreDataService()
+        // "Подменяем" его контейнер на наш тестовый
+        coreDataService.persistentContainer = testPersistentContainer
     }
 
     override func tearDownWithError() throws {
-        // Put teardown code here. This method is called after the invocation of each test method in the class.
+        // Этот метод вызывается после каждого теста.
+        coreDataService = nil
+        testPersistentContainer = nil
     }
-
-    func testExample() throws {
-        // This is an example of a functional test case.
-        // Use XCTAssert and related functions to verify your tests produce the correct results.
-        // Any test you write for XCTest can be annotated as throws and async.
-        // Mark your test throws to produce an unexpected failure when your test encounters an uncaught error.
-        // Mark your test async to allow awaiting for asynchronous code to complete. Check the results with assertions afterwards.
-    }
-
-    func testPerformanceExample() throws {
-        // This is an example of a performance test case.
-        self.measure {
-            // Put the code you want to measure the time of here.
+    
+    func testCreateAndFetchTask() throws {
+        // Arrange (Подготовка)
+        let title = "Test Task"
+        let description = "Test Description"
+        let expectation = XCTestExpectation(description: "Task creation completion")
+        
+        // Act (Действие)
+        coreDataService.createTask(title: title, description: description) {
+            expectation.fulfill()
         }
+        
+        wait(for: [expectation], timeout: 1.0)
+        
+        // Assert (Проверка)
+        let tasks = coreDataService.fetchTasks()
+        XCTAssertEqual(tasks.count, 1, "Should be one task in the store")
+        XCTAssertEqual(tasks.first?.title, title)
+        XCTAssertEqual(tasks.first?.taskDescription, description)
+        XCTAssertFalse(tasks.first?.isCompleted ?? true, "Task should not be completed")
     }
-
+    
+    func testUpdateTask() throws {
+        // Arrange
+        let expectation = XCTestExpectation(description: "Task update completion")
+        coreDataService.createTask(title: "Old Title", description: "Old Desc") {
+            expectation.fulfill()
+        }
+        wait(for: [expectation], timeout: 1.0)
+        
+        let taskToUpdate = coreDataService.fetchTasks().first!
+        let newTitle = "New Title"
+        let newDesc = "New Desc"
+        let updateExpectation = XCTestExpectation(description: "Task update completion")
+        
+        // Act
+        coreDataService.updateTask(id: taskToUpdate.id, title: newTitle, description: newDesc) {
+            updateExpectation.fulfill()
+        }
+        wait(for: [updateExpectation], timeout: 1.0)
+        
+        // Assert
+        let updatedTasks = coreDataService.fetchTasks()
+        XCTAssertEqual(updatedTasks.count, 1)
+        XCTAssertEqual(updatedTasks.first?.title, newTitle)
+        XCTAssertEqual(updatedTasks.first?.taskDescription, newDesc)
+    }
+    
+    func testDeleteTask() throws {
+        // Arrange
+        let expectation = XCTestExpectation(description: "Task creation for deletion")
+        coreDataService.createTask(title: "To Delete", description: "") {
+            expectation.fulfill()
+        }
+        wait(for: [expectation], timeout: 1.0)
+        
+        let taskToDelete = coreDataService.fetchTasks().first!
+        let deleteExpectation = XCTestExpectation(description: "Task deletion completion")
+        XCTAssertEqual(coreDataService.fetchTasks().count, 1)
+        
+        // Act
+        coreDataService.deleteTask(for: taskToDelete.id) {
+            deleteExpectation.fulfill()
+        }
+        wait(for: [deleteExpectation], timeout: 1.0)
+        
+        // Assert
+        XCTAssertEqual(coreDataService.fetchTasks().count, 0, "Task should be deleted")
+    }
 }
