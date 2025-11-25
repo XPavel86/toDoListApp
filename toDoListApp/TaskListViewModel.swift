@@ -43,4 +43,11 @@ class TaskListViewModel {
     func task(at indexPath: IndexPath) -> Task {
         return tasks[indexPath.row]
     }
+    
+    func deleteTask(for taskId: UUID) {
+        CoreDataService.shared.deleteTask(for: taskId) { [weak self] in
+            // После удаления из базы, перезагружаем данные
+            self?.fetchTasks()
+        }
+    }
 }

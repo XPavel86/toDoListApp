@@ -102,6 +102,9 @@
                                         <rect key="frame" x="0.0" y="0.0" width="414" height="41"/>
                                         <state key="normal" title="Button"/>
                                         <buttonConfiguration key="configuration" style="plain" image="square.and.pencil" catalog="system"/>
+                                        <connections>
+                                            <segue destination="mcZ-St-THl" kind="show" identifier="showAddEditScreen" id="g7y-uo-DsX"/>
+                                        </connections>
                                     </button>
                                 </subviews>
                             </stackView>
@@ -131,12 +134,60 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="0to-ZM-f6S" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="-1368.1159420289855" y="-822.554347826087"/>
+            <point key="canvasLocation" x="-1483" y="-933"/>
+        </scene>
+        <!--Add Edit Task View Controller-->
+        <scene sceneID="6XD-JC-4zR">
+            <objects>
+                <viewController id="mcZ-St-THl" customClass="AddEditTaskViewController" customModule="toDoListApp" customModuleProvider="target" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="asu-Xa-VwT">
+                        <rect key="frame" x="0.0" y="0.0" width="414" height="736"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <textField opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="248" fixedFrame="YES" contentHorizontalAlignment="left" contentVerticalAlignment="center" text="Название задачи" borderStyle="roundedRect" placeholder="Название задачи" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="36a-xb-uIi">
+                                <rect key="frame" x="20" y="64" width="374" height="34"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="14"/>
+                                <textInputTraits key="textInputTraits"/>
+                            </textField>
+                            <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" fixedFrame="YES" editable="NO" text="Описание задачи" translatesAutoresizingMaskIntoConstraints="NO" id="fyq-D3-O1K">
+                                <rect key="frame" x="20" y="161" width="374" height="526"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                                <color key="textColor" systemColor="labelColor"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="14"/>
+                                <textInputTraits key="textInputTraits" autocapitalizationType="sentences"/>
+                            </textView>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="01/10/24" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="cgW-vX-MLA">
+                                <rect key="frame" x="20" y="106" width="66" height="21"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                <nil key="textColor"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                        </subviews>
+                        <viewLayoutGuide key="safeArea" id="WjL-IN-JW7"/>
+                        <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                    </view>
+                    <navigationItem key="navigationItem" id="2an-9K-7c3"/>
+                    <connections>
+                        <outlet property="dateLabel" destination="cgW-vX-MLA" id="aZN-mP-EBL"/>
+             
+                        <outlet property="descriptionTextView" destination="fyq-D3-O1K" id="01C-BQ-HDV"/>
+                        <outlet property="titleTextField" destination="36a-xb-uIi" id="64N-8W-14d"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="qvL-5V-arD" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="-694.20289855072474" y="-1136.413043478261"/>
         </scene>
     </scenes>
     <resources>
         <image name="circle" catalog="system" width="128" height="123"/>
         <image name="square.and.pencil" catalog="system" width="128" height="121"/>
+        <systemColor name="labelColor">
+            <color white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+        </systemColor>
         <systemColor name="systemBackgroundColor">
             <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
         </systemColor>

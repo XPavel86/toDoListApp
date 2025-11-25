@@ -56,13 +56,43 @@ class TaskListViewController: UIViewController {
         }
     }
     
+//    override func tableView(_ tableView: UITableView, contextMenuConfigurationForRowAt indexPath: IndexPath, point: CGPoint) -> UIContextMenuConfiguration? {
+//        
+//        // Получаем задачу для нужной строки
+//        let task = viewModel.task(at: indexPath)
+//        
+//        // Создаем конфигурацию
+//        let configuration = UIContextMenuConfiguration(identifier: nil, previewProvider: nil) { _ in
+//            // Создаем меню
+//            let editAction = UIAction(title: "Редактировать", image: UIImage(systemName: "square.and.pencil")) { _ in
+//                print("Редактировать задачу: \(task.title)")
+//                // TODO: Здесь будет переход на экран редактирования
+//            }
+//            
+//            let shareAction = UIAction(title: "Поделиться", image: UIImage(systemName: "square.and.arrow.up")) { [weak self] _ in
+//                self?.shareTask(title: task.title)
+//            }
+//            
+//            let deleteAction = UIAction(title: "Удалить", image: UIImage(systemName: "trash"), attributes: .destructive) { [weak self] _ in
+//                self?.deleteTask(taskId: task.id)
+//            }
+//            
+//            // Возвращаем UIMenu с нашими действиями
+//            return UIMenu(title: "", children: [editAction, shareAction, deleteAction])
+//        }
+//        
+//        return configuration
+//    }
+    
     // MARK: - IB Actions
     @IBAction func addButtonTapped(_ sender: UIBarButtonItem) {
         print("Кнопка 'Добавить задачу' нажата!")
         // Здесь мы будем переходить на следующий экран в следующем подшаге
     }
+    
+    
 }
-
+//kkkkkkkk
 // MARK: - UITableViewDataSource
 extension TaskListViewController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
@@ -86,12 +116,81 @@ extension TaskListViewController: UITableViewDataSource {
 }
 
 // MARK: - UITableViewDelegate
+// TaskListViewController.swift
+
+// MARK: - UITableViewDelegate
 extension TaskListViewController: UITableViewDelegate {
-    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+    
+    // УБРАЛИ 'override'
+     func tableView(_ tableView: UITableView, contextMenuConfigurationForRowAt indexPath: IndexPath, point: CGPoint) -> UIContextMenuConfiguration? {
+        
+        let task = viewModel.task(at: indexPath)
+        
+        let configuration = UIContextMenuConfiguration(identifier: nil, previewProvider: nil) { _ in
+            let editAction = UIAction(title: "Редактировать", image: UIImage(systemName: "square.and.pencil")) { [weak self] _ in
+                self?.performSegue(withIdentifier: "showAddEditScreen", sender: indexPath)
+            }
+            
+            let shareAction = UIAction(title: "Поделиться", image: UIImage(systemName: "square.and.arrow.up")) { [weak self] _ in
+                // Вызываем метод, который мы добавим ниже
+                self?.shareTask(title: task.title)
+            }
+            
+            let deleteAction = UIAction(title: "Удалить", image: UIImage(systemName: "trash"), attributes: .destructive) { [weak self] _ in
+                // Вызываем метод, который мы добавим ниже
+                self?.deleteTask(taskId: task.id)
+            }
+            
+            return UIMenu(title: "", children: [editAction, shareAction, deleteAction])
+        }
+        
+        return configuration
+    }
+    
+     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
-        print("Выбрана задача: \(viewModel.task(at: indexPath).title)")
+        performSegue(withIdentifier: "showAddEditScreen", sender: indexPath)
+    }
+    
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        if segue.identifier == "showAddEditScreen" {
+            let destinationVC = segue.destination as! AddEditTaskViewController
+            
+            // Если sender - это IndexPath, значит мы редактируем
+            if let indexPath = sender as? IndexPath {
+                let taskToEdit = viewModel.task(at: indexPath)
+                destinationVC.taskToEdit = taskToEdit
+            }
+            // Если sender - не IndexPath (например, кнопка "добавить"),
+            // то destinationVC.taskToEdit останется nil, что правильно для создания новой задачи.
+        }
+    }
+    
+}
+
+// MARK: - Private Actions (ЭТОТ БЛОК НУЖНО ДОБАВИТЬ)
+extension TaskListViewController {
+    
+    private func shareTask(title: String) {
+        let activityViewController = UIActivityViewController(activityItems: [title], applicationActivities: nil)
+        
+        // Для iPad нужно указать, откуда показывать контроллер
+        if let popover = activityViewController.popoverPresentationController {
+            popover.sourceView = self.view
+            popover.sourceRect = CGRect(x: self.view.bounds.midX, y: self.view.bounds.midY, width: 0, height: 0)
+            popover.permittedArrowDirections = []
+        }
+        
+        present(activityViewController, animated: true)
+    }
+    
+    private func deleteTask(taskId: UUID) {
+        viewModel.deleteTask(for: taskId)
     }
 }
+
+  
+
 
 // MARK: - UISearchBarDelegate
 extension TaskListViewController: UISearchBarDelegate {
@@ -101,3 +200,4 @@ extension TaskListViewController: UISearchBarDelegate {
         print("Поиск: \(searchText)")
     }
 }
+

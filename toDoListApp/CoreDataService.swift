@@ -110,6 +110,73 @@ class CoreDataService {
             return []
         }
     }
+    
+    func deleteTask(for taskId: UUID, completion: @escaping () -> Void) {
+        persistentContainer.performBackgroundTask { backgroundContext in
+            let request: NSFetchRequest<TaskEntity> = TaskEntity.fetchRequest()
+            request.predicate = NSPredicate(format: "id == %@", taskId as CVarArg)
+            
+            do {
+                let results = try backgroundContext.fetch(request)
+                if let taskEntityToDelete = results.first {
+                    backgroundContext.delete(taskEntityToDelete)
+                    try backgroundContext.save()
+                    print("✅ Task deleted with ID: \(taskId.uuidString)")
+                }
+            } catch {
+                print("❌ Failed to delete task: \(error)")
+            }
+            
+            DispatchQueue.main.async {
+                completion()
+            }
+        }
+    }
+    
+    func createTask(title: String, description: String, completion: @escaping () -> Void) {
+        persistentContainer.performBackgroundTask { backgroundContext in
+            let taskEntity = TaskEntity(context: backgroundContext)
+            taskEntity.id = UUID()
+            taskEntity.title = title
+            taskEntity.taskDescription = description
+            taskEntity.createdDate = Date()
+            taskEntity.isCompleted = false
+            
+            do {
+                try backgroundContext.save()
+                print("✅ New task created successfully.")
+            } catch {
+                print("❌ Failed to create new task: \(error)")
+            }
+            
+            DispatchQueue.main.async {
+                completion()
+            }
+        }
+    }
+    
+    func updateTask(id: UUID, title: String, description: String, completion: @escaping () -> Void) {
+        persistentContainer.performBackgroundTask { backgroundContext in
+            let request: NSFetchRequest<TaskEntity> = TaskEntity.fetchRequest()
+            request.predicate = NSPredicate(format: "id == %@", id as CVarArg)
+            
+            do {
+                let results = try backgroundContext.fetch(request)
+                if let taskEntity = results.first {
+                    taskEntity.title = title
+                    taskEntity.taskDescription = description
+                    try backgroundContext.save()
+                    print("✅ Task updated successfully with ID: \(id.uuidString)")
+                }
+            } catch {
+                print("❌ Failed to update task: \(error)")
+            }
+            
+            DispatchQueue.main.async {
+                completion()
+            }
+        }
+    }
 }
     // Другие CRUD операции (update, delete, create) мы добавим на следующих шагах
 
