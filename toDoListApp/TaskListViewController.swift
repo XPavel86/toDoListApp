@@ -13,6 +13,7 @@ class TaskListViewController: UIViewController {
     // MARK: - IB Outlets
     @IBOutlet var tableView: UITableView!
     @IBOutlet var searchBar: UISearchBar!
+    @IBOutlet var taskCountLabel: UILabel!
     
     // MARK: - Properties
     private let viewModel = TaskListViewModel()
@@ -20,14 +21,41 @@ class TaskListViewController: UIViewController {
     // MARK: - Lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
-        title = "Список дел"
-        
+
+        setupCountLabel()
         setupTableView()
         setupSearchBar()
         setupBindings()
+        setupNotifications() // <--- НОВЫЙ ВЫЗОВ
         
-        // Для первоначальной загрузки используем fetchTasks()
+        // НЕ вызываем fetchTasks() здесь, так как ждем уведомление
+    }
+    
+    private func setupCountLabel() {
+        taskCountLabel.text = viewModel.taskCountString
+        taskCountLabel.font = .systemFont(ofSize: 17, weight: .medium)
+        taskCountLabel.textColor = .label
+    }
+    
+    // Добавляем этот метод
+    private func setupNotifications() {
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(handleInitialDataLoad),
+            name: .initialDataDidLoad,
+            object: nil
+        )
+    }
+
+    // Этот метод вызовется, когда придет уведомление
+    @objc private func handleInitialDataLoad() {
+        print("Получено уведомление о загрузке данных. Обновляем UI.")
         viewModel.fetchTasks()
+    }
+
+    deinit {
+        // Важно отписаться от уведомлений, чтобы не было утечек памяти
+        NotificationCenter.default.removeObserver(self)
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -48,13 +76,16 @@ class TaskListViewController: UIViewController {
         searchBar.delegate = self
         searchBar.placeholder = "Поиск задач"
         searchBar.searchBarStyle = .minimal
-        searchBar.showsCancelButton = true
+        //searchBar.showsCancelButton = true
     }
+    
     
     private func setupBindings() {
         viewModel.onDataUpdated = { [weak self] in
             DispatchQueue.main.async {
                 self?.tableView.reloadData()
+                // Обновляем текст на лейбле при каждом изменении данных
+                self?.taskCountLabel.text = self?.viewModel.taskCountString
             }
         }
     }
@@ -182,7 +213,24 @@ extension TaskListViewController: UITableViewDelegate {
 } // END UITableViewDelegate
 
 // MARK: - UISearchBarDelegate
+//extension TaskListViewController: UISearchBarDelegate {
+//    func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
+//        viewModel.filterTasks(with: searchText)
+//    }
+//    
+//    func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
+//        searchBar.resignFirstResponder()
+//    }
+//    
+//    func searchBarCancelButtonClicked(_ searchBar: UISearchBar) {
+//        searchBar.text = ""
+//        searchBar.resignFirstResponder()
+//        viewModel.clearSearch()
+//    }
+//}
+
 extension TaskListViewController: UISearchBarDelegate {
+    
     func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
         viewModel.filterTasks(with: searchText)
     }
@@ -192,9 +240,26 @@ extension TaskListViewController: UISearchBarDelegate {
     }
     
     func searchBarCancelButtonClicked(_ searchBar: UISearchBar) {
+        // 1. Скрываем кнопку
+        searchBar.setShowsCancelButton(false, animated: true)
+        // 2. Очищаем текст
         searchBar.text = ""
+        // 3. Убираем фокус с поля (убирает клавиатуру)
         searchBar.resignFirstResponder()
+        // 4. Сбрасываем результаты поиска в ViewModel
         viewModel.clearSearch()
+    }
+    
+    // Вызывается, когда пользователь тапнул в поле поиска
+    func searchBarTextDidBeginEditing(_ searchBar: UISearchBar) {
+        // Показываем кнопку с анимацией
+        searchBar.setShowsCancelButton(true, animated: true)
+    }
+    
+    // Вызывается, когда поле поиска теряет фокус
+    func searchBarTextDidEndEditing(_ searchBar: UISearchBar) {
+        // Скрываем кнопку с анимацией
+        searchBar.setShowsCancelButton(false, animated: true)
     }
 }
 

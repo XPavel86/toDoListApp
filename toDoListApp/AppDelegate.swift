@@ -23,38 +23,28 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         let userDefaults = UserDefaults.standard
         let hasLoadedInitialData = userDefaults.bool(forKey: "hasLoadedInitialData")
         
-        if !hasLoadedInitialData {
-            print("First launch. Loading initial data...")
-            
-            NetworkService.shared.fetchTodos { result in
-                switch result {
-                case .success(let apiTasks):
-                    print("Successfully fetched \(apiTasks.count) tasks from API.")
-                    
-                    // Сохраняем в Core Data и передаем блок кода,
-                    // который выполнится ПОСЛЕ сохранения.
-                    CoreDataService.shared.saveInitialTasks(apiTasks: apiTasks) {
-                        print("Save operation finished. Now verifying data...")
+        // ВСЕГДА вызываем initialize. Он сам разберется, нужно ли грузить базу.
+        CoreDataService.shared.initialize {
+            // Этот код выполнится только ПОСЛЕ того, как Core Data будет гарантированно готова
+            if !hasLoadedInitialData {
+                print("First launch. Loading initial data...")
+                NetworkService.shared.fetchTodos { result in
+                    switch result {
+                    case .success(let apiTasks):
+                        print("Successfully fetched \(apiTasks.count) tasks from API.")
                         
-                        // Устанавливаем флаг ТОЛЬКО ПОСЛЕ того, как данные сохранились
-                        userDefaults.set(true, forKey: "hasLoadedInitialData")
-                        
-                        // Теперь безопасно получать задачи для проверки
-                        let tasks = CoreDataService.shared.fetchTasks()
-                        print("✅ Fetched \(tasks.count) tasks from Core Data for verification.")
-                        if let firstTask = tasks.first {
-                            print("   First task title: \(firstTask.title)")
-                        } else {
-                            print("   No tasks found in Core Data after save.")
+                        CoreDataService.shared.saveInitialTasks(apiTasks: apiTasks) {
+                            userDefaults.set(true, forKey: "hasLoadedInitialData")
+                            NotificationCenter.default.post(name: .initialDataDidLoad, object: nil)
                         }
+                        
+                    case .failure(let error):
+                        print("❌ Failed to fetch initial data: \(error)")
                     }
-                    
-                case .failure(let error):
-                    print("❌ Failed to fetch initial data: \(error)")
                 }
+            } else {
+                print("Initial data already loaded.")
             }
-        } else {
-            print("Initial data already loaded.")
         }
     }
 

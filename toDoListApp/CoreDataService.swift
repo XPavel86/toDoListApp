@@ -14,26 +14,50 @@ class CoreDataService: CoreDataServiceProtocol {
     
     static let shared = CoreDataService()
     
-    // РЕШЕНИЕ ПРОБЛЕМЫ:
-    // Создаем контейнер прямо здесь, внутри сервиса.
-    // Он инициализируется один раз при первом обращении к shared.
-    // ВАЖНО: Убедитесь, что имя "ToDoList" в кавычках совпадает с именем вашего .xcdatamodeld файла!
-    lazy var persistentContainer: NSPersistentContainer = {
-        let container = NSPersistentContainer(name: "toDoListApp")
-        container.loadPersistentStores { _, error in
+    var persistentContainer: NSPersistentContainer
+    
+    // Флаг, чтобы не загружать базу данных несколько раз
+    private var isInitialized = false
+
+    // Конструктор остается простым
+    private init() {
+        self.persistentContainer = NSPersistentContainer(name: "toDoListApp")
+    }
+    
+    // Публичный метод инициализации, который можно вызывать всегда
+    func initialize(completion: @escaping () -> Void) {
+        // Если уже инициализировались, просто вызываем completion и выходим
+        if isInitialized {
+            completion()
+            return
+        }
+        
+        // Иначе выполняем полную инициализацию
+        persistentContainer.loadPersistentStores { [weak self] _, error in
+            guard let self = self else { return }
             if let error = error as NSError? {
-                // В реальном приложении здесь нужна более сложная обработка ошибок.
                 fatalError("Unresolved error \(error), \(error.userInfo)")
             }
+            
+            // Устанавливаем флаг, что все готово
+            self.isInitialized = true
+            // Включаем автоматическое слияние изменений
+            self.persistentContainer.viewContext.automaticallyMergesChangesFromParent = true
+            
+            completion()
         }
-        return container
-    }()
+    }
+
+    // Тестовый конструктор остается без изменений
+    internal init(container: NSPersistentContainer) {
+        self.persistentContainer = container
+        self.isInitialized = true // Считаем, что тестовый контейнер уже готов
+    }
 
     var context: NSManagedObjectContext {
         return persistentContainer.viewContext
     }
-    
-    private init() {}
+
 
     // MARK: - Public Methods
     

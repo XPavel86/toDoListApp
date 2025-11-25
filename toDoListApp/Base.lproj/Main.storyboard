@@ -98,8 +98,14 @@
                             <stackView opaque="NO" contentMode="scaleToFill" distribution="fillProportionally" translatesAutoresizingMaskIntoConstraints="NO" id="L7w-uv-Ha6">
                                 <rect key="frame" x="0.0" y="681" width="414" height="41"/>
                                 <subviews>
+                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="usT-rQ-PRl">
+                                        <rect key="frame" x="0.0" y="0.0" width="186" height="41"/>
+                                        <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                        <nil key="textColor"/>
+                                        <nil key="highlightedColor"/>
+                                    </label>
                                     <button opaque="NO" contentMode="right" contentHorizontalAlignment="trailing" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="VJL-8l-H9D">
-                                        <rect key="frame" x="0.0" y="0.0" width="414" height="41"/>
+                                        <rect key="frame" x="186" y="0.0" width="228" height="41"/>
                                         <state key="normal" title="Button"/>
                                         <buttonConfiguration key="configuration" style="plain" image="square.and.pencil" catalog="system"/>
                                         <connections>
@@ -130,6 +136,7 @@
                     <connections>
                         <outlet property="searchBar" destination="yin-O3-TJw" id="i7M-Ut-kvr"/>
                         <outlet property="tableView" destination="gyl-Le-PpR" id="jZm-bm-jE7"/>
+                        <outlet property="taskCountLabel" destination="usT-rQ-PRl" id="Chj-nM-SM4"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="0to-ZM-f6S" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
@@ -172,7 +179,6 @@
                     <navigationItem key="navigationItem" id="2an-9K-7c3"/>
                     <connections>
                         <outlet property="dateLabel" destination="cgW-vX-MLA" id="aZN-mP-EBL"/>
-             
                         <outlet property="descriptionTextView" destination="fyq-D3-O1K" id="01C-BQ-HDV"/>
                         <outlet property="titleTextField" destination="36a-xb-uIi" id="64N-8W-14d"/>
                     </connections>

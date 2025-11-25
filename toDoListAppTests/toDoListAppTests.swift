@@ -15,11 +15,22 @@ final class ToDoListTests: XCTestCase {
 
     override func setUpWithError() throws {
         // Этот метод вызывается перед каждым тестом.
-        // Создаем in-memory базу данных для чистоты эксперимента.
-        testPersistentContainer = NSPersistentContainer(name: "ToDoList")
+        
+        // Шаг 1: Находим модель данных в основном приложении
+        // ИСПРАВЛЕНО: Используем правильное имя модели "toDoListApp"
+        guard let modelURL = Bundle.main.url(forResource: "toDoListApp", withExtension: "momd") else {
+            fatalError("Error finding model in main bundle")
+        }
+        guard let managedObjectModel = NSManagedObjectModel(contentsOf: modelURL) else {
+            fatalError("Error initializing MOM from: \(modelURL)")
+        }
+
+        // Шаг 2: Создаем in-memory базу данных, используя найденную модель
+        // ИСПРАВЛЕНО: Также передаем правильное имя
+        testPersistentContainer = NSPersistentContainer(name: "toDoListApp", managedObjectModel: managedObjectModel)
         
         let description = NSPersistentStoreDescription()
-        description.type = NSInMemoryStoreType // КЛЮЧЕВОЕ: in-memory store
+        description.type = NSInMemoryStoreType
         
         testPersistentContainer.persistentStoreDescriptions = [description]
         
@@ -29,10 +40,8 @@ final class ToDoListTests: XCTestCase {
             }
         }
         
-        // Создаем экземпляр сервиса с нашей тестовой базой
-        coreDataService = CoreDataService()
-        // "Подменяем" его контейнер на наш тестовый
-        coreDataService.persistentContainer = testPersistentContainer
+        // Шаг 3: Используем наш специальный конструктор для тестов
+        coreDataService = CoreDataService(container: testPersistentContainer)
     }
 
     override func tearDownWithError() throws {
