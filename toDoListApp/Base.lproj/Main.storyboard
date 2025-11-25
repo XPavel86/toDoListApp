@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="23504" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="4fr-jv-CEF">
-    <device id="retina5_5" orientation="portrait" appearance="light"/>
+    <device id="retina6_9" orientation="portrait" appearance="light"/>
     <dependencies>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="23506"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
@@ -13,7 +13,7 @@
             <objects>
                 <navigationController id="4fr-jv-CEF" sceneMemberID="viewController">
                     <navigationBar key="navigationBar" contentMode="scaleToFill" id="69c-yN-dM5">
-                        <rect key="frame" x="0.0" y="20" width="414" height="44"/>
+                        <rect key="frame" x="0.0" y="62" width="440" height="44"/>
                         <autoresizingMask key="autoresizingMask"/>
                     </navigationBar>
                     <connections>
@@ -29,55 +29,41 @@
             <objects>
                 <viewController title="Задачи" id="3fd-wZ-Ldo" customClass="TaskListViewController" customModule="toDoListApp" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="LOg-kd-jTQ">
-                        <rect key="frame" x="0.0" y="0.0" width="414" height="736"/>
+                        <rect key="frame" x="0.0" y="0.0" width="440" height="956"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <searchBar contentMode="redraw" translatesAutoresizingMaskIntoConstraints="NO" id="yin-O3-TJw">
-                                <rect key="frame" x="0.0" y="64" width="414" height="56"/>
-                                <textInputTraits key="textInputTraits"/>
-                                <connections>
-                                    <outlet property="delegate" destination="3fd-wZ-Ldo" id="rUn-DY-sVM"/>
-                                </connections>
-                            </searchBar>
                             <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="-1" estimatedSectionHeaderHeight="-1" sectionFooterHeight="-1" estimatedSectionFooterHeight="-1" translatesAutoresizingMaskIntoConstraints="NO" id="gyl-Le-PpR">
-                                <rect key="frame" x="0.0" y="167" width="414" height="514"/>
+                                <rect key="frame" x="16" y="178" width="408" height="695"/>
                                 <color key="backgroundColor" systemColor="systemBackgroundColor"/>
-                                <constraints>
-                                    <constraint firstAttribute="height" constant="514" id="TZD-Rc-DOh"/>
-                                </constraints>
                                 <prototypes>
                                     <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" selectionStyle="blue" hidesAccessoryWhenEditing="NO" indentationLevel="1" indentationWidth="0.0" reuseIdentifier="TaskCellIdentifier" id="mMB-iK-qW0" customClass="TaskTableViewCell" customModule="toDoListApp" customModuleProvider="target">
-                                        <rect key="frame" x="0.0" y="50" width="414" height="43.666667938232422"/>
+                                        <rect key="frame" x="0.0" y="50" width="408" height="43.666667938232422"/>
                                         <autoresizingMask key="autoresizingMask"/>
                                         <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO" tableViewCell="mMB-iK-qW0" id="jIX-yU-USC">
-                                            <rect key="frame" x="0.0" y="0.0" width="414" height="43.666667938232422"/>
+                                            <rect key="frame" x="0.0" y="0.0" width="408" height="43.666667938232422"/>
                                             <autoresizingMask key="autoresizingMask"/>
                                             <subviews>
-                                                <stackView opaque="NO" contentMode="scaleToFill" fixedFrame="YES" axis="vertical" translatesAutoresizingMaskIntoConstraints="NO" id="CvG-Mm-7RO">
-                                                    <rect key="frame" x="16" y="-79" width="174" height="95.333333333333329"/>
+                                                <stackView opaque="NO" contentMode="scaleToFill" fixedFrame="YES" axis="vertical" distribution="fillEqually" spacing="13" translatesAutoresizingMaskIntoConstraints="NO" id="CvG-Mm-7RO">
+                                                    <rect key="frame" x="16" y="-79" width="203" height="129"/>
                                                     <subviews>
                                                         <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Z9Q-2x-CBM">
-                                                            <rect key="frame" x="0.0" y="0.0" width="174" height="34.333333333333336"/>
+                                                            <rect key="frame" x="0.0" y="0.0" width="203" height="34.333333333333336"/>
                                                             <state key="normal" title="Button"/>
-                                                            <buttonConfiguration key="configuration" style="plain" image="circle" catalog="system" title="checkboxButton"/>
+                                                            <buttonConfiguration key="configuration" style="plain" image="circle" catalog="system" title="Заголовок задачи">
+                                                                <fontDescription key="titleFontDescription" type="boldSystem" pointSize="17"/>
+                                                            </buttonConfiguration>
                                                             <connections>
                                                                 <action selector="checkboxButtonTapped:" destination="mMB-iK-qW0" eventType="touchDown" id="cZl-Fz-rhO"/>
                                                             </connections>
                                                         </button>
-                                                        <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="titleLabel" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Vg9-3u-NdG">
-                                                            <rect key="frame" x="0.0" y="34.333333333333336" width="174" height="20.333333333333336"/>
-                                                            <fontDescription key="fontDescription" type="system" pointSize="17"/>
-                                                            <nil key="textColor"/>
-                                                            <nil key="highlightedColor"/>
-                                                        </label>
                                                         <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="descriptionLabel" textAlignment="natural" lineBreakMode="tailTruncation" numberOfLines="2" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="hcS-Ku-BNS">
-                                                            <rect key="frame" x="0.0" y="54.666666666666664" width="174" height="20.333333333333336"/>
+                                                            <rect key="frame" x="0.0" y="47.333333333333329" width="203" height="34.333333333333329"/>
                                                             <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                                             <nil key="textColor"/>
                                                             <nil key="highlightedColor"/>
                                                         </label>
                                                         <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="dateLabel" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="1ap-SN-Kgm">
-                                                            <rect key="frame" x="0.0" y="75" width="174" height="20.333333333333329"/>
+                                                            <rect key="frame" x="0.0" y="94.666666666666671" width="203" height="34.333333333333329"/>
                                                             <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                                             <nil key="textColor"/>
                                                             <nil key="highlightedColor"/>
@@ -90,22 +76,21 @@
                                             <outlet property="checkboxButton" destination="Z9Q-2x-CBM" id="2aP-cV-giM"/>
                                             <outlet property="dateLabel" destination="1ap-SN-Kgm" id="nVJ-dk-qje"/>
                                             <outlet property="descriptionLabel" destination="hcS-Ku-BNS" id="1T3-KW-dQt"/>
-                                            <outlet property="titleLabel" destination="Vg9-3u-NdG" id="scX-zc-mNf"/>
                                         </connections>
                                     </tableViewCell>
                                 </prototypes>
                             </tableView>
-                            <stackView opaque="NO" contentMode="scaleToFill" distribution="fillProportionally" translatesAutoresizingMaskIntoConstraints="NO" id="L7w-uv-Ha6">
-                                <rect key="frame" x="0.0" y="681" width="414" height="41"/>
+                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="thz-dA-Nts">
+                                <rect key="frame" x="0.0" y="809" width="440" height="64"/>
                                 <subviews>
                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="usT-rQ-PRl">
-                                        <rect key="frame" x="0.0" y="0.0" width="186" height="41"/>
+                                        <rect key="frame" x="199.33333333333334" y="22" width="41.333333333333343" height="20.333333333333329"/>
                                         <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                         <nil key="textColor"/>
                                         <nil key="highlightedColor"/>
                                     </label>
-                                    <button opaque="NO" contentMode="right" contentHorizontalAlignment="trailing" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="VJL-8l-H9D">
-                                        <rect key="frame" x="186" y="0.0" width="228" height="41"/>
+                                    <button opaque="NO" contentMode="right" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="VJL-8l-H9D">
+                                        <rect key="frame" x="373.33333333333331" y="15.000000000000004" width="50.666666666666686" height="34.333333333333343"/>
                                         <state key="normal" title="Button"/>
                                         <buttonConfiguration key="configuration" style="plain" image="square.and.pencil" catalog="system"/>
                                         <connections>
@@ -113,25 +98,42 @@
                                         </connections>
                                     </button>
                                 </subviews>
-                            </stackView>
+                                <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                                <constraints>
+                                    <constraint firstItem="usT-rQ-PRl" firstAttribute="centerY" secondItem="thz-dA-Nts" secondAttribute="centerY" id="1Aj-i1-UYB"/>
+                                    <constraint firstItem="usT-rQ-PRl" firstAttribute="centerY" secondItem="thz-dA-Nts" secondAttribute="centerY" id="DQn-rF-yuU"/>
+                                    <constraint firstItem="VJL-8l-H9D" firstAttribute="centerY" secondItem="thz-dA-Nts" secondAttribute="centerY" id="EQp-jp-u7z"/>
+                                    <constraint firstItem="usT-rQ-PRl" firstAttribute="centerX" secondItem="thz-dA-Nts" secondAttribute="centerX" id="JaR-jd-J0M"/>
+                                    <constraint firstItem="VJL-8l-H9D" firstAttribute="centerY" secondItem="thz-dA-Nts" secondAttribute="centerY" id="iFs-nc-rmU"/>
+                                    <constraint firstAttribute="trailing" secondItem="VJL-8l-H9D" secondAttribute="trailing" constant="16" id="qYB-Ya-YkU"/>
+                                </constraints>
+                            </view>
+                            <searchBar contentMode="redraw" translatesAutoresizingMaskIntoConstraints="NO" id="yin-O3-TJw">
+                                <rect key="frame" x="16" y="106" width="408" height="56"/>
+                                <textInputTraits key="textInputTraits"/>
+                                <connections>
+                                    <outlet property="delegate" destination="3fd-wZ-Ldo" id="rUn-DY-sVM"/>
+                                </connections>
+                            </searchBar>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="FGi-Y8-GvA"/>
                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                         <constraints>
-                            <constraint firstItem="L7w-uv-Ha6" firstAttribute="leading" secondItem="gyl-Le-PpR" secondAttribute="leading" id="2lv-Mt-GJK"/>
-                            <constraint firstAttribute="trailing" secondItem="L7w-uv-Ha6" secondAttribute="trailing" id="8Rk-cu-Q8K"/>
-                            <constraint firstItem="L7w-uv-Ha6" firstAttribute="leading" secondItem="LOg-kd-jTQ" secondAttribute="leading" id="CUn-Ye-vZt"/>
-                            <constraint firstItem="L7w-uv-Ha6" firstAttribute="top" secondItem="gyl-Le-PpR" secondAttribute="bottom" id="Clr-Do-H81"/>
-                            <constraint firstAttribute="bottomMargin" secondItem="L7w-uv-Ha6" secondAttribute="bottom" constant="-35" id="Yic-lH-JYb"/>
-                            <constraint firstItem="gyl-Le-PpR" firstAttribute="centerX" secondItem="yin-O3-TJw" secondAttribute="centerX" id="fml-bm-suH"/>
-                            <constraint firstItem="gyl-Le-PpR" firstAttribute="top" secondItem="yin-O3-TJw" secondAttribute="bottom" constant="47" id="gpQ-SA-1Ei"/>
-                            <constraint firstItem="FGi-Y8-GvA" firstAttribute="bottom" secondItem="gyl-Le-PpR" secondAttribute="bottom" constant="6" id="hUQ-KG-rIp"/>
-                            <constraint firstItem="yin-O3-TJw" firstAttribute="leading" secondItem="gyl-Le-PpR" secondAttribute="leading" id="o6a-Ez-SAG"/>
-                            <constraint firstItem="gyl-Le-PpR" firstAttribute="centerX" secondItem="L7w-uv-Ha6" secondAttribute="centerX" id="wzO-fJ-67a"/>
+                            <constraint firstItem="gyl-Le-PpR" firstAttribute="bottom" secondItem="thz-dA-Nts" secondAttribute="bottom" id="2qQ-VQ-67X"/>
+                            <constraint firstItem="yin-O3-TJw" firstAttribute="leading" secondItem="FGi-Y8-GvA" secondAttribute="leading" constant="16" id="4eq-A3-msg"/>
+                            <constraint firstItem="gyl-Le-PpR" firstAttribute="leading" secondItem="FGi-Y8-GvA" secondAttribute="leading" constant="16" id="Bhp-5X-DBe"/>
+                            <constraint firstItem="FGi-Y8-GvA" firstAttribute="trailing" secondItem="thz-dA-Nts" secondAttribute="trailing" id="PXd-KA-uJf"/>
+                            <constraint firstItem="thz-dA-Nts" firstAttribute="top" secondItem="gyl-Le-PpR" secondAttribute="bottom" constant="-64" id="aRC-w6-tfk"/>
+                            <constraint firstItem="thz-dA-Nts" firstAttribute="centerX" secondItem="gyl-Le-PpR" secondAttribute="centerX" id="hTZ-LO-0v8"/>
+                            <constraint firstItem="gyl-Le-PpR" firstAttribute="top" secondItem="yin-O3-TJw" secondAttribute="bottom" constant="16" id="iPE-bC-jnY"/>
+                            <constraint firstItem="yin-O3-TJw" firstAttribute="top" secondItem="FGi-Y8-GvA" secondAttribute="top" id="lpw-qP-exy"/>
+                            <constraint firstItem="thz-dA-Nts" firstAttribute="bottom" secondItem="FGi-Y8-GvA" secondAttribute="bottom" id="paW-nv-IXk"/>
+                            <constraint firstItem="FGi-Y8-GvA" firstAttribute="trailing" secondItem="yin-O3-TJw" secondAttribute="trailing" constant="16" id="qml-yd-4XO"/>
+                            <constraint firstItem="FGi-Y8-GvA" firstAttribute="trailing" secondItem="gyl-Le-PpR" secondAttribute="trailing" constant="16" id="zf2-3c-GHu"/>
                         </constraints>
                     </view>
                     <toolbarItems/>
-                    <navigationItem key="navigationItem" id="vqi-qw-Hvx"/>
+                    <navigationItem key="navigationItem" title="Задачи" id="vqi-qw-Hvx"/>
                     <simulatedToolbarMetrics key="simulatedBottomBarMetrics"/>
                     <connections>
                         <outlet property="searchBar" destination="yin-O3-TJw" id="i7M-Ut-kvr"/>
@@ -141,14 +143,14 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="0to-ZM-f6S" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="-1483" y="-933"/>
+            <point key="canvasLocation" x="-1485" y="-933.89121338912139"/>
         </scene>
         <!--Add Edit Task View Controller-->
         <scene sceneID="6XD-JC-4zR">
             <objects>
                 <viewController id="mcZ-St-THl" customClass="AddEditTaskViewController" customModule="toDoListApp" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="asu-Xa-VwT">
-                        <rect key="frame" x="0.0" y="0.0" width="414" height="736"/>
+                        <rect key="frame" x="0.0" y="0.0" width="440" height="956"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <textField opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="248" fixedFrame="YES" contentHorizontalAlignment="left" contentVerticalAlignment="center" text="Название задачи" borderStyle="roundedRect" placeholder="Название задачи" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="36a-xb-uIi">

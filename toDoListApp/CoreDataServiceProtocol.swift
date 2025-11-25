@@ -14,5 +14,7 @@ protocol CoreDataServiceProtocol {
     func createTask(title: String, description: String, completion: @escaping () -> Void)
     func updateTask(id: UUID, title: String, description: String, completion: @escaping () -> Void)
     func deleteTask(for taskId: UUID, completion: @escaping () -> Void)
-    func toggleTaskCompletion(for taskId: UUID, completion: @escaping () -> Void)
+    
+    // ИЗМЕНЕНО: Теперь метод в протоколе тоже возвращает обновленную задачу
+    func toggleTaskCompletion(for taskId: UUID, completion: @escaping (Task?) -> Void)
 }

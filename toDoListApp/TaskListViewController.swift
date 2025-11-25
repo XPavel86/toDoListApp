@@ -5,7 +5,6 @@
 //  Created by Pavel Dolgopolov on 24.11.2025.
 //
 
-// TaskListViewController.swift
 import UIKit
 
 class TaskListViewController: UIViewController {
@@ -21,23 +20,44 @@ class TaskListViewController: UIViewController {
     // MARK: - Lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
+        setupUI()
+        setupBindings()
+        setupNotifications()
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        viewModel.refreshTasks()
+    }
 
+    deinit {
+        NotificationCenter.default.removeObserver(self)
+    }
+    
+    // MARK: - Setup Methods
+    private func setupUI() {
         setupCountLabel()
         setupTableView()
         setupSearchBar()
-        setupBindings()
-        setupNotifications() // <--- НОВЫЙ ВЫЗОВ
-        
-        // НЕ вызываем fetchTasks() здесь, так как ждем уведомление
     }
     
     private func setupCountLabel() {
-        taskCountLabel.text = viewModel.taskCountString
         taskCountLabel.font = .systemFont(ofSize: 17, weight: .medium)
         taskCountLabel.textColor = .label
     }
     
-    // Добавляем этот метод
+    private func setupTableView() {
+        tableView.delegate = self
+        tableView.dataSource = self
+        tableView.tableFooterView = UIView()
+    }
+    
+    private func setupSearchBar() {
+        searchBar.delegate = self
+        searchBar.placeholder = "Поиск задач"
+        searchBar.searchBarStyle = .minimal
+    }
+    
     private func setupNotifications() {
         NotificationCenter.default.addObserver(
             self,
@@ -47,45 +67,34 @@ class TaskListViewController: UIViewController {
         )
     }
 
-    // Этот метод вызовется, когда придет уведомление
     @objc private func handleInitialDataLoad() {
         print("Получено уведомление о загрузке данных. Обновляем UI.")
         viewModel.fetchTasks()
     }
-
-    deinit {
-        // Важно отписаться от уведомлений, чтобы не было утечек памяти
-        NotificationCenter.default.removeObserver(self)
-    }
-    
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
-        // При возвращении на экран обновляем данные, но сохраняем состояние поиска
-        viewModel.refreshTasks()
-    }
-    
-    // MARK: - Setup Methods
-    private func setupTableView() {
-        tableView.delegate = self
-        tableView.dataSource = self
-        // Регистрация не нужна, так как мы используем прототип в Storyboard
-        tableView.tableFooterView = UIView()
-    }
-    
-    private func setupSearchBar() {
-        searchBar.delegate = self
-        searchBar.placeholder = "Поиск задач"
-        searchBar.searchBarStyle = .minimal
-        //searchBar.showsCancelButton = true
-    }
-    
     
     private func setupBindings() {
+        // Полная перезагрузка таблицы
         viewModel.onDataUpdated = { [weak self] in
             DispatchQueue.main.async {
                 self?.tableView.reloadData()
-                // Обновляем текст на лейбле при каждом изменении данных
                 self?.taskCountLabel.text = self?.viewModel.taskCountString
+            }
+        }
+        
+        // Обновление одной конкретной ячейки
+        viewModel.onSingleTaskUpdated = { [weak self] taskId in
+            guard let self = self else { return }
+            
+            // Определяем, какой массив данных сейчас активен
+            let dataSource = self.viewModel.isSearching ? self.viewModel.filteredTasks : self.viewModel.tasks
+            
+            // Находим индекс задачи в активном массиве
+            guard let rowIndex = dataSource.firstIndex(where: { $0.id == taskId }) else { return }
+            let indexPathToReload = IndexPath(row: rowIndex, section: 0)
+            
+            // Перезагружаем только эту ячейку
+            DispatchQueue.main.async {
+                self.tableView.reloadRows(at: [indexPathToReload], with: .automatic)
             }
         }
     }
@@ -130,70 +139,40 @@ extension TaskListViewController: UITableViewDelegate {
     }
     
     // MARK: - Context Menu Configuration
-        func tableView(_ tableView: UITableView,
-                       contextMenuConfigurationForRowAt indexPath: IndexPath,
-                       point: CGPoint) -> UIContextMenuConfiguration? {
-            
-            let task = viewModel.task(at: indexPath)
-
-            return UIContextMenuConfiguration(
-                identifier: indexPath as NSCopying,
-                previewProvider: {
-                    TaskPreviewViewController(task: task)
-                },
-                actionProvider: { _ in
-                    let edit = UIAction(
-                        title: "Редактировать",
-                        image: UIImage(systemName: "square.and.pencil")
-                    ) { [weak self] _ in
-                        self?.performSegue(withIdentifier: "showAddEditScreen", sender: indexPath)
-                    }
-
-                    let share = UIAction(
-                        title: "Поделиться",
-                        image: UIImage(systemName: "square.and.arrow.up")
-                    ) { [weak self] _ in
-                        self?.shareTask(title: task.title)
-                    }
-
-                    let delete = UIAction(
-                        title: "Удалить",
-                        image: UIImage(systemName: "trash"),
-                        attributes: .destructive
-                    ) { [weak self] _ in
-                        self?.deleteTask(taskId: task.id)
-                    }
-
-                    return UIMenu(title: "", children: [edit, share, delete])
-                }
-            )
-        }
-
+    func tableView(_ tableView: UITableView,
+                   contextMenuConfigurationForRowAt indexPath: IndexPath,
+                   point: CGPoint) -> UIContextMenuConfiguration? {
         
-        // MARK: - Центрирование контекстного меню (главное исправление)
-//    func tableView(_ tableView: UITableView,
-//                   contextMenuConfiguration configuration: UIContextMenuConfiguration,
-//                   highlightPreviewForItemAt indexPath: IndexPath,
-//                   point: CGPoint) -> UITargetedPreview? {
-//
-//        let target = UIPreviewTarget(container: tableView.superview ?? tableView,
-//                                     center: CGPoint(x: tableView.bounds.midX, y: point.y))
-//
-//        let dummy = UIView(frame: CGRect(x: 0, y: 0, width: 1, height: 1))
-//        dummy.backgroundColor = .clear
-//
-//        let params = UIPreviewParameters()
-//        params.backgroundColor = .clear // например
-//
-//        return UITargetedPreview(view: dummy, parameters: params, target: target)
-//    }
+        let task = viewModel.task(at: indexPath)
+
+        return UIContextMenuConfiguration(
+            identifier: indexPath as NSCopying,
+            previewProvider: {
+                TaskPreviewViewController(task: task)
+            },
+            actionProvider: { _ in
+                let edit = UIAction(title: "Редактировать", image: UIImage(systemName: "square.and.pencil")) { [weak self] _ in
+                    self?.performSegue(withIdentifier: "showAddEditScreen", sender: indexPath)
+                }
+
+                let share = UIAction(title: "Поделиться", image: UIImage(systemName: "square.and.arrow.up")) { [weak self] _ in
+                    self?.shareTask(title: task.title)
+                }
+
+                let delete = UIAction(title: "Удалить", image: UIImage(systemName: "trash"), attributes: .destructive) { [weak self] _ in
+                    self?.deleteTask(taskId: task.id)
+                }
+
+                return UIMenu(title: "", children: [edit, share, delete])
+            }
+        )
+    }
 
     func tableView(_ tableView: UITableView,
                    contextMenuConfiguration configuration: UIContextMenuConfiguration,
                    highlightPreviewForItemAt indexPath: IndexPath,
                    point: CGPoint) -> UITargetedPreview? {
 
-        // центрируем по ширине экрана
         let target = UIPreviewTarget(
             container: tableView.superview ?? tableView,
             center: CGPoint(x: tableView.bounds.midX,
@@ -202,35 +181,15 @@ extension TaskListViewController: UITableViewDelegate {
 
         let dummy = UIView(frame: CGRect(x: 0, y: 0, width: 1, height: 1))
         dummy.backgroundColor = .clear
-        
         let params = UIPreviewParameters()
-       params.backgroundColor = .clear // например
+        params.backgroundColor = .clear
 
         return UITargetedPreview(view: dummy, parameters: params, target: target)
     }
-
-        
-} // END UITableViewDelegate
+}
 
 // MARK: - UISearchBarDelegate
-//extension TaskListViewController: UISearchBarDelegate {
-//    func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
-//        viewModel.filterTasks(with: searchText)
-//    }
-//    
-//    func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
-//        searchBar.resignFirstResponder()
-//    }
-//    
-//    func searchBarCancelButtonClicked(_ searchBar: UISearchBar) {
-//        searchBar.text = ""
-//        searchBar.resignFirstResponder()
-//        viewModel.clearSearch()
-//    }
-//}
-
 extension TaskListViewController: UISearchBarDelegate {
-    
     func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
         viewModel.filterTasks(with: searchText)
     }
@@ -240,25 +199,17 @@ extension TaskListViewController: UISearchBarDelegate {
     }
     
     func searchBarCancelButtonClicked(_ searchBar: UISearchBar) {
-        // 1. Скрываем кнопку
         searchBar.setShowsCancelButton(false, animated: true)
-        // 2. Очищаем текст
         searchBar.text = ""
-        // 3. Убираем фокус с поля (убирает клавиатуру)
         searchBar.resignFirstResponder()
-        // 4. Сбрасываем результаты поиска в ViewModel
         viewModel.clearSearch()
     }
     
-    // Вызывается, когда пользователь тапнул в поле поиска
     func searchBarTextDidBeginEditing(_ searchBar: UISearchBar) {
-        // Показываем кнопку с анимацией
         searchBar.setShowsCancelButton(true, animated: true)
     }
     
-    // Вызывается, когда поле поиска теряет фокус
     func searchBarTextDidEndEditing(_ searchBar: UISearchBar) {
-        // Скрываем кнопку с анимацией
         searchBar.setShowsCancelButton(false, animated: true)
     }
 }

@@ -11,7 +11,7 @@ import CoreData
 import UIKit
 
 class CoreDataService: CoreDataServiceProtocol {
-    
+
     static let shared = CoreDataService()
     
     var persistentContainer: NSPersistentContainer
@@ -61,28 +61,34 @@ class CoreDataService: CoreDataServiceProtocol {
 
     // MARK: - Public Methods
     
-    func toggleTaskCompletion(for taskId: UUID, completion: @escaping () -> Void) {
+    func toggleTaskCompletion(for taskId: UUID, completion: @escaping (Task?) -> Void) {
         persistentContainer.performBackgroundTask { backgroundContext in
             let request: NSFetchRequest<TaskEntity> = TaskEntity.fetchRequest()
-            
-            // Ищем задачу по уникальному ID
             request.predicate = NSPredicate(format: "id == %@", taskId as CVarArg)
             
             do {
                 let results = try backgroundContext.fetch(request)
                 if let taskEntity = results.first {
-                    // Меняем статус на противоположный
                     taskEntity.isCompleted.toggle()
                     try backgroundContext.save()
                     print("✅ Task completion status toggled for ID: \(taskId.uuidString)")
+                    
+                    // Создаем и возвращаем обновленную задачу
+                    let updatedTask = Task(taskEntity: taskEntity)
+                    
+                    DispatchQueue.main.async {
+                        completion(updatedTask)
+                    }
+                } else {
+                    DispatchQueue.main.async {
+                        completion(nil)
+                    }
                 }
             } catch {
                 print("❌ Failed to toggle task completion: \(error)")
-            }
-            
-            // Вызываем completion в главном потоке
-            DispatchQueue.main.async {
-                completion()
+                DispatchQueue.main.async {
+                    completion(nil)
+                }
             }
         }
     }
@@ -180,27 +186,29 @@ class CoreDataService: CoreDataServiceProtocol {
     }
     
     func updateTask(id: UUID, title: String, description: String, completion: @escaping () -> Void) {
-        // Используем главный контекст, так как это быстрая операция, инициированная UI
-        let context = self.context
-        
-        let request: NSFetchRequest<TaskEntity> = TaskEntity.fetchRequest()
-        request.predicate = NSPredicate(format: "id == %@", id as CVarArg)
-        
-        do {
-            let results = try context.fetch(request)
-            if let taskEntity = results.first {
-                taskEntity.title = title
-                taskEntity.taskDescription = description
-                try context.save() // Сохраняем прямо в главном контексте
-                print("✅ Task updated successfully with ID: \(id.uuidString)")
+        // ИЗМЕНЕНО: Используем фоновый контекст, как и в других методах
+        persistentContainer.performBackgroundTask { backgroundContext in
+            let request: NSFetchRequest<TaskEntity> = TaskEntity.fetchRequest()
+            request.predicate = NSPredicate(format: "id == %@", id as CVarArg)
+            
+            do {
+                let results = try backgroundContext.fetch(request)
+                if let taskEntity = results.first {
+                    taskEntity.title = title
+                    taskEntity.taskDescription = description
+                    try backgroundContext.save() // Сохраняем в фоновом контексте
+                    print("✅ Task updated successfully with ID: \(id.uuidString)")
+                }
+            } catch {
+                print("❌ Failed to update task: \(error)")
             }
-        } catch {
-            print("❌ Failed to update task: \(error)")
+            
+            DispatchQueue.main.async {
+                completion()
+            }
         }
-        
-        // Так как мы в главном потоке, просто вызываем completion
-        completion()
     }
+    
 }
     // Другие CRUD операции (update, delete, create) мы добавим на следующих шагах
 

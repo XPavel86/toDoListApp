@@ -7,18 +7,18 @@
 
 // TaskTableViewCell.swift
 // TaskTableViewCell.swift
+// TaskTableViewCell.swift
 import UIKit
 
 class TaskTableViewCell: UITableViewCell {
     
     // MARK: - IB Outlets
+    // УБРАЛИ: @IBOutlet var titleLabel!
     @IBOutlet var checkboxButton: UIButton!
-    @IBOutlet var titleLabel: UILabel!
     @IBOutlet var descriptionLabel: UILabel!
     @IBOutlet var dateLabel: UILabel!
     
     @IBAction func checkboxButtonTapped(_ sender: UIButton) {
-        // Проверяем, что taskId существует, и вызываем замыкание
         guard let taskId = taskId else { return }
         onCheckboxTapped?(taskId)
     }
@@ -26,7 +26,6 @@ class TaskTableViewCell: UITableViewCell {
     private var taskId: UUID?
     var onCheckboxTapped: ((UUID) -> Void)?
     
-    // Форматировщик для даты, чтобы создавать его один раз
     private let dateFormatter: DateFormatter = {
         let formatter = DateFormatter()
         formatter.dateFormat = "dd/MM/yy"
@@ -46,30 +45,34 @@ class TaskTableViewCell: UITableViewCell {
     // MARK: - Configuration
     
     func configure(with task: Task) {
-        // Сохраняем id задачи
         self.taskId = task.id
         
-        titleLabel.text = task.title
+        // ИЗМЕНЕНИЕ: Работаем напрямую с кнопкой
+        updateCheckboxAndTitle(for: task)
+        
         descriptionLabel.text = task.taskDescription.isEmpty ? "Нет описания" : task.taskDescription
         dateLabel.text = dateFormatter.string(from: task.createdDate)
-        
-        updateCheckboxState(isCompleted: task.isCompleted)
     }
     
-    private func updateCheckboxState(isCompleted: Bool) {
-        if isCompleted {
+    // НОВЫЙ МЕТОД: Обновляет иконку, текст и стиль кнопки
+    private func updateCheckboxAndTitle(for task: Task) {
+        if task.isCompleted {
             checkboxButton.setImage(UIImage(systemName: "checkmark.circle.fill"), for: .normal)
-            // Зачеркиваем заголовок
-            titleLabel.attributedText = NSAttributedString(
-                string: titleLabel.text ?? "",
+            
+            // Зачеркиваем текст прямо на кнопке
+            let attributedTitle = NSAttributedString(
+                string: task.title,
                 attributes: [.strikethroughStyle: NSUnderlineStyle.single.rawValue]
             )
-            titleLabel.textColor = .secondaryLabel
+            checkboxButton.setAttributedTitle(attributedTitle, for: .normal)
+            checkboxButton.setTitleColor(.secondaryLabel, for: .normal)
+            
         } else {
             checkboxButton.setImage(UIImage(systemName: "circle"), for: .normal)
-            // Убираем зачеркивание
-            titleLabel.attributedText = NSAttributedString(string: titleLabel.text ?? "")
-            titleLabel.textColor = .label
+            
+            // Устанавливаем обычный текст на кнопке
+            checkboxButton.setTitle(task.title, for: .normal)
+            checkboxButton.setTitleColor(.label, for: .normal)
         }
     }
 }
