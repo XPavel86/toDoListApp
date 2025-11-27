@@ -39,6 +39,7 @@ class TaskListViewController: UIViewController {
         setupCountLabel()
         setupTableView()
         setupSearchBar()
+        
     }
     
     private func setupCountLabel() {
