@@ -1,7 +1,7 @@
 // TaskTableViewCell.swift
 import UIKit
 
-// Используем final, так как этот класс не планируется наследовать
+// не планируется наследовать
 final class TaskTableViewCell: UITableViewCell {
     
     // MARK: - UI Elements (создаются программно)

@@ -15,7 +15,6 @@ final class TaskPreviewViewController: UIViewController {
         self.task = task
         super.init(nibName: nil, bundle: nil)
         
-        // ВАЖНО: начальное значение, потом будет пересчитано в viewDidLayoutSubviews
         preferredContentSize = CGSize(width: UIScreen.main.bounds.width - 32,
                                       height: 300)
     }

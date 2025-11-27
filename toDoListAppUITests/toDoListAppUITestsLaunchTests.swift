@@ -19,7 +19,6 @@ final class toDoListAppUITestsLaunchTests: XCTestCase {
     }
 
     override func tearDownWithError() throws {
-        // Ничего здесь не нужно, так как логгер сам управляет файлом
     }
 
     // MARK: - Вспомогательные функции

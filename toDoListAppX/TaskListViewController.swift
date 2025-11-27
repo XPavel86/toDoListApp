@@ -4,17 +4,15 @@
 //
 //  Created by Pavel Dolgopolov on 24.11.2025.
 //
-// TaskListViewController.swift
+
 import UIKit
 
-// Меняем родительский класс и делаем его final
 final class TaskListViewController: UITableViewController {
 
     // MARK: - IB Outlets
-    // tableView больше не нужен, он наследуется от UITableViewController
+
     @IBOutlet var searchBar: UISearchBar!
     
-    // taskCountLabel теперь создается программно
     private var taskCountLabel: UILabel!
     
     // MARK: - Properties
@@ -26,16 +24,14 @@ final class TaskListViewController: UITableViewController {
         
         self.title = "Задачи"
         
-        // НОВЫЙ КОД: Включаем крупные заголовки для этого экрана
         self.navigationController?.navigationBar.prefersLargeTitles = true
         self.navigationItem.largeTitleDisplayMode = .always
         
         setupSearchBar()
-        setupBottomToolbar() // НОВЫЙ МЕТОД
+        setupBottomToolbar()
         setupBindings()
         setupNotifications()
         
-        // Регистрируем нашу программную ячейку
         tableView.register(TaskTableViewCell.self, forCellReuseIdentifier: TaskTableViewCell.identifier)
     }
     
@@ -57,7 +53,6 @@ final class TaskListViewController: UITableViewController {
     }
    
     private func setupBottomToolbar() {
-        // 1. Создаем иконку справа (без изменений)
        
         let addButton = UIButton(type: .system)
         addButton.accessibilityIdentifier = "addButton"
@@ -66,20 +61,17 @@ final class TaskListViewController: UITableViewController {
         addButton.addTarget(self, action: #selector(addButtonTapped), for: .touchUpInside)
         let iconBarButton = UIBarButtonItem(customView: addButton)
         
-        // 2. Создаем константу для ширины и шрифта, используя стиль .caption1
-        let textStyle = UIFont.TextStyle.caption1 // НОВЫЙ СТИЛЬ
-        let metrics = UIFontMetrics(forTextStyle: textStyle) // НОВЫЙ МЕТРИКС
+        let textStyle = UIFont.TextStyle.caption1
+        let metrics = UIFontMetrics(forTextStyle: textStyle)
         
         let longestString = "много Задач"
         // Рассчитываем размер на основе системного шрифта для этого стиля
         let stringSize = (longestString as NSString).size(withAttributes: [.font: metrics.scaledFont(for: .systemFont(ofSize: 17, weight: .medium))])
         let requiredWidth = stringSize.width + 8
         
-        // 3. Создаем лейбл по центру и используем наш новый стиль
         taskCountLabel = UILabel()
         taskCountLabel.accessibilityIdentifier = "taskCountLabel"
         
-        // Применяем масштабируемый шрифт
         taskCountLabel.font = metrics.scaledFont(for: .systemFont(ofSize: 15, weight: .medium))
         taskCountLabel.textColor = .label
         taskCountLabel.textAlignment = .center
@@ -92,14 +84,11 @@ final class TaskListViewController: UITableViewController {
         
         let labelBarButton = UIBarButtonItem(customView: taskCountLabel)
         
-        // 4. Создаем "резиновые" отступы (без изменений)
         let flexibleSpaceLeft = UIBarButtonItem(barButtonSystemItem: .flexibleSpace, target: nil, action: nil)
         let flexibleSpaceRight = UIBarButtonItem(barButtonSystemItem: .flexibleSpace, target: nil, action: nil)
         
-        // 5. Собираем все элементы (без изменений)
         self.toolbarItems = [flexibleSpaceLeft, labelBarButton, flexibleSpaceRight, iconBarButton]
         
-        // 6. Показываем toolbar (без изменений)
         self.navigationController?.isToolbarHidden = false
         self.navigationController?.toolbar.isTranslucent = false
     }
@@ -109,7 +98,6 @@ final class TaskListViewController: UITableViewController {
     }
     
     @objc private func addButtonTapped() {
-        // Здесь будет логика добавления новой задачи
         print("Add button tapped")
         performSegue(withIdentifier: "showAddEditScreen", sender: nil)
     }
@@ -176,13 +164,11 @@ final class TaskListViewController: UITableViewController {
 
 // MARK: - UITableViewDataSource
 extension TaskListViewController {
-    // numberOfRowsInSection и cellForRowAt остаются без изменений, так как они используют self.tableView
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return viewModel.numberOfRowsInSection()
     }
     
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        // Используем наш новый identifier
         let cell = tableView.dequeueReusableCell(withIdentifier: TaskTableViewCell.identifier, for: indexPath) as! TaskTableViewCell
         let task = viewModel.task(at: indexPath)
         cell.configure(with: task)
@@ -257,18 +243,15 @@ extension TaskListViewController {
         
         // Переводим координаты нажатия в систему координат ячейки
         let pointInCell = tableView.convert(point, to: cell)
-        
-        // ЕСЛИ НАЖАТИЕ ПОПАЛО НА КНОПКУ - НЕ ПОКАЗЫВАТЬ МЕНЮ
+         
         if buttonFrame.contains(pointInCell) {
             return nil
         }
         
-        // ИНАЧЕ - ПОКАЗЫВАТЬ МЕНЮ КАК ОБЫЧНО
         let task = viewModel.task(at: indexPath)
         return UIContextMenuConfiguration(
             identifier: indexPath as NSCopying,
             previewProvider: {
-                // Убедитесь, что TaskPreviewViewController существует и настроен
                 TaskPreviewViewController(task: task)
             },
             actionProvider: { _ in

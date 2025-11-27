@@ -9,6 +9,6 @@ import Foundation
 
 extension Notification.Name {
     static let initialDataDidLoad = Notification.Name("initialDataDidLoad")
-    static let taskDidUpdate = Notification.Name("taskDidUpdate") // НОВОЕ УВЕДОМЛЕНИЕ
+    static let taskDidUpdate = Notification.Name("taskDidUpdate") 
 }
 

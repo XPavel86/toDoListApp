@@ -6,7 +6,7 @@
 //
 import XCTest
 import CoreData
-@testable import toDoListApp // Импортируем наше приложение
+@testable import toDoListAppX
 
 final class ToDoListTests: XCTestCase {
 
@@ -14,10 +14,7 @@ final class ToDoListTests: XCTestCase {
     var testPersistentContainer: NSPersistentContainer!
 
     override func setUpWithError() throws {
-        // Этот метод вызывается перед каждым тестом.
-        
-        // Шаг 1: Находим модель данных в основном приложении
-        // ИСПРАВЛЕНО: Используем правильное имя модели "toDoListApp"
+
         guard let modelURL = Bundle.main.url(forResource: "toDoListApp", withExtension: "momd") else {
                 fatalError("Error finding model in main bundle")
             }
@@ -38,26 +35,22 @@ final class ToDoListTests: XCTestCase {
                 }
             }
             
-            // Используем наш специальный конструктор для тестов
             coreDataService = CoreDataService(container: testPersistentContainer)
             
-            // ГЛАВНОЕ ИСПРАВЛЕНИЕ: Вручную включаем автоматическое слияние для тестов
             coreDataService.persistentContainer.viewContext.automaticallyMergesChangesFromParent = true
         }
 
     override func tearDownWithError() throws {
-        // Этот метод вызывается после каждого теста.
+        // вызывается после каждого теста.
         coreDataService = nil
         testPersistentContainer = nil
     }
     
     func testCreateAndFetchTask() throws {
-        // Arrange (Подготовка)
         let title = "Test Task"
         let description = "Test Description"
         let expectation = XCTestExpectation(description: "Task creation completion")
         
-        // Act (Действие)
         coreDataService.createTask(title: title, description: description) {
             expectation.fulfill()
         }
@@ -73,8 +66,7 @@ final class ToDoListTests: XCTestCase {
     }
     
     func testUpdateTask() throws {
-        // Arrange
-        TestLogger.shared.log("Обновление задачи")
+
         let expectation = XCTestExpectation(description: "Task update completion")
         coreDataService.createTask(title: "Old Title", description: "Old Desc") {
             expectation.fulfill()

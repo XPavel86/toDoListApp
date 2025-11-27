@@ -10,29 +10,19 @@ final class toDoListAppUITests: XCTestCase {
     var app: XCUIApplication!
 
     override func setUpWithError() throws {
-        // Этот метод вызывается перед каждым тестом.
-        
-        // Гарантируем, что тест остановится при первой ошибке.
         continueAfterFailure = false
-        
-        // ГЛАВНОЕ: Создаем экземпляр приложения, который будет использоваться в тестах.
-        // Он не будет запущен здесь, каждый тест запустит его сам со своими аргументами.
+
         app = XCUIApplication()
-        
-        // ВАЖНО: Перед каждым тестом завершаем работу приложения,
-        // чтобы обеспечить чистое состояние и избежать влияния одного теста на другой.
+
         app.terminate()
     }
 
     override func tearDownWithError() throws {
-        // Этот метод вызывается после каждого теста.
-        app = nil // Освобождаем ссылку
+        app = nil
     }
 
     // Наш первый реальный тест
     func testAddNewTask() throws {
-        // Arrange (Подготовка)
-        // Устанавливаем аргументы специально для ЭТОГО теста
         app.launchArguments = ["UI_TESTING"]
         app.launch()
         

@@ -1,4 +1,3 @@
-// AddEditTaskViewController.swift
 import UIKit
 
 class AddEditTaskViewController: UIViewController {
@@ -47,7 +46,7 @@ class AddEditTaskViewController: UIViewController {
         return formatter
     }()
     
-    // Сохраняем начальные отступы текста, чтобы потом их восстановить
+    // Сохраняем начальные отступы текста
     private var originalTextViewInsets: UIEdgeInsets = .zero
 
     // MARK: - Lifecycle
@@ -85,31 +84,26 @@ class AddEditTaskViewController: UIViewController {
             titleTextField.becomeFirstResponder()
         }
     }
-    
-    // AddEditTaskViewController.swift
 
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
         
         if isMovingFromParent {
             
-            // 1. Определяем текущее состояние полей, используя trim()
             let titleText = titleTextField.text?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
             let titleIsEmpty = titleText.isEmpty
             
             let descriptionText = descriptionTextView.text?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
             let descriptionIsNotEmpty = !descriptionText.isEmpty && descriptionTextView.textColor == .label
             
-            // 2. Готовим финальный заголовок (с учетом возможной генерации из описания)
+            // генерируем заголовок если он пуст из описания
             var finalTitle = titleText
             if titleIsEmpty && descriptionIsNotEmpty {
                 finalTitle = getWords(from: descriptionText, maxCount: 2)
             }
             
-            // 3. Выполняем действия в зависимости от режима
             if isEditMode {
-                // --- РЕЖИМ РЕДАКТИРОВАНИЯ ---
-                // Если после всех проверок финальный заголовок пуст, удаляем задачу.
+                // заголовок пуст, удаляем задачу
                 if finalTitle.isEmpty {
                     print("Заголовок и описание пусты. Удаляем задачу.")
                     guard let taskId = taskToEdit?.id else { return }
@@ -123,7 +117,7 @@ class AddEditTaskViewController: UIViewController {
             }
             
             // 4. Финальное сохранение (если задача не была удалена)
-            // Используем trim() для финальной проверки
+            // чистим trim()
             guard !finalTitle.isEmpty else {
                 print("Заголовок пуст, задача не будет создана.")
                 return
@@ -238,8 +232,6 @@ class AddEditTaskViewController: UIViewController {
     }
     
     // MARK: - Saving Logic
-    
-    // AddEditTaskViewController.swift
 
     private func saveTask() {
         // Используем trim() для проверки заголовка
@@ -248,7 +240,7 @@ class AddEditTaskViewController: UIViewController {
             return
         }
         
-        // Извлекаем и очищаем описание, только если это не плейсхолдер
+        // Извлекаем и очищаем описание
         var description = ""
         if descriptionTextView.textColor == .label {
             description = descriptionTextView.text?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
@@ -282,7 +274,7 @@ extension AddEditTaskViewController: UITextViewDelegate {
     }
     
     func textViewDidEndEditing(_ textView: UITextView) {
-        // Используем trim() для проверки, что пользователь ничего не ввел
+        // Удаляем  trim лишнее
         if textView.text?.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ?? true {
             textView.text = "Описание задачи"
             textView.textColor = .placeholderText

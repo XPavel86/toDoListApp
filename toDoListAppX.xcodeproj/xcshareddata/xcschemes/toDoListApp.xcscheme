@@ -16,9 +16,9 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "EF98F8892ED4CD5C001E6BEA"
-               BuildableName = "toDoListApp.app"
-               BlueprintName = "toDoListApp"
-               ReferencedContainer = "container:toDoListApp.xcodeproj">
+               BuildableName = "toDoListAppX.app"
+               BlueprintName = "toDoListAppX"
+               ReferencedContainer = "container:toDoListAppX.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
@@ -30,7 +30,7 @@
       shouldUseLaunchSchemeArgsEnv = "YES">
       <TestPlans>
          <TestPlanReference
-            reference = "container:toDoListApp.xctestplan"
+            reference = "container:toDoListAppX.xctestplan"
             default = "YES">
          </TestPlanReference>
       </TestPlans>
@@ -41,9 +41,9 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "EF98F8A22ED4CD5E001E6BEA"
-               BuildableName = "toDoListAppTests.xctest"
-               BlueprintName = "toDoListAppTests"
-               ReferencedContainer = "container:toDoListApp.xcodeproj">
+               BuildableName = "toDoListAppXTests.xctest"
+               BlueprintName = "toDoListAppXTests"
+               ReferencedContainer = "container:toDoListAppX.xcodeproj">
             </BuildableReference>
          </TestableReference>
          <TestableReference
@@ -52,9 +52,9 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "EF98F8AC2ED4CD5E001E6BEA"
-               BuildableName = "toDoListAppUITests.xctest"
-               BlueprintName = "toDoListAppUITests"
-               ReferencedContainer = "container:toDoListApp.xcodeproj">
+               BuildableName = "toDoListAppXUITests.xctest"
+               BlueprintName = "toDoListAppXUITests"
+               ReferencedContainer = "container:toDoListAppX.xcodeproj">
             </BuildableReference>
          </TestableReference>
       </Testables>
@@ -74,9 +74,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "EF98F8892ED4CD5C001E6BEA"
-            BuildableName = "toDoListApp.app"
-            BlueprintName = "toDoListApp"
-            ReferencedContainer = "container:toDoListApp.xcodeproj">
+            BuildableName = "toDoListAppX.app"
+            BlueprintName = "toDoListAppX"
+            ReferencedContainer = "container:toDoListAppX.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </LaunchAction>
@@ -91,9 +91,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "EF98F8892ED4CD5C001E6BEA"
-            BuildableName = "toDoListApp.app"
-            BlueprintName = "toDoListApp"
-            ReferencedContainer = "container:toDoListApp.xcodeproj">
+            BuildableName = "toDoListAppX.app"
+            BlueprintName = "toDoListAppX"
+            ReferencedContainer = "container:toDoListAppX.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </ProfileAction>

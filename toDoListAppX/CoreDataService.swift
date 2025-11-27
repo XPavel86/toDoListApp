@@ -5,7 +5,6 @@
 //  Created by Pavel Dolgopolov on 24.11.2025.
 //
 
-// CoreDataService.swift
 import Foundation
 import CoreData
 import UIKit
@@ -19,12 +18,10 @@ class CoreDataService: CoreDataServiceProtocol {
     // Флаг, чтобы не загружать базу данных несколько раз
     private var isInitialized = false
 
-    // Конструктор остается простым
     private init() {
         self.persistentContainer = NSPersistentContainer(name: "toDoListApp")
     }
     
-    // Публичный метод инициализации, который можно вызывать всегда
     func initialize(completion: @escaping () -> Void) {
         // Если уже инициализировались, просто вызываем completion и выходим
         if isInitialized {
@@ -71,7 +68,7 @@ class CoreDataService: CoreDataServiceProtocol {
                 if let taskEntity = results.first {
                     taskEntity.isCompleted.toggle()
                     try backgroundContext.save()
-                    print("✅ Task completion status toggled for ID: \(taskId.uuidString)")
+                    print("Task completion status toggled for ID: \(taskId.uuidString)")
                     
                     // Создаем и возвращаем обновленную задачу
                     let updatedTask = Task(taskEntity: taskEntity)
@@ -85,7 +82,7 @@ class CoreDataService: CoreDataServiceProtocol {
                     }
                 }
             } catch {
-                print("❌ Failed to toggle task completion: \(error)")
+                print("Failed to toggle task completion: \(error)")
                 DispatchQueue.main.async {
                     completion(nil)
                 }
@@ -111,12 +108,12 @@ class CoreDataService: CoreDataServiceProtocol {
             
             do {
                 try backgroundContext.save()
-                print("✅ Background save finished successfully.")
+                print("Background save finished successfully.")
                 DispatchQueue.main.async {
                     completion()
                 }
             } catch {
-                print("❌ Failed to save initial tasks: \(error)")
+                print("Failed to save initial tasks: \(error)")
                 DispatchQueue.main.async {
                     completion()
                 }
@@ -125,14 +122,11 @@ class CoreDataService: CoreDataServiceProtocol {
     }
     
     /// Получение всех задач из базы данных
-    /// Получение всех задач из базы данных
     func fetchTasks() -> [Task] {
         let request: NSFetchRequest<TaskEntity> = TaskEntity.fetchRequest()
         
-        // ИЗМЕНЕНО: Сортируем по apiId, чтобы сохранить порядок с API.
         // Если apiId nil (для локальных задач), они будут в конце.
         let primarySortDescriptor = NSSortDescriptor(key: "apiId", ascending: true)
-        // В качестве вторичной сортировки можно использовать createdDate
         let secondarySortDescriptor = NSSortDescriptor(key: "createdDate", ascending: false)
         
         request.sortDescriptors = [primarySortDescriptor, secondarySortDescriptor]

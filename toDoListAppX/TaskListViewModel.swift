@@ -10,7 +10,7 @@ import Foundation
 class TaskListViewModel {
     
     // MARK: - Public Properties (для чтения из ViewController)
-    // Предоставляем доступ к массивам задач, но только для чтения
+
     var tasks: [Task] { return _tasks }
     var filteredTasks: [Task] { return _filteredTasks }
     
@@ -21,7 +21,6 @@ class TaskListViewModel {
 
     // MARK: - Closures for View Controller
     var onDataUpdated: (() -> Void)?
-    // Теперь замыкание передает ID обновленной задачи
     var onSingleTaskUpdated: ((UUID) -> Void)?
     
     // MARK: - Data Loading
