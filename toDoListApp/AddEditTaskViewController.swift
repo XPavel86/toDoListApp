@@ -80,9 +80,10 @@ class AddEditTaskViewController: UIViewController {
     }
     
     // MARK: - Saving Logic
+    // AddEditTaskViewController.swift
+
     private func saveTask() {
         guard let title = titleTextField.text, !title.isEmpty else {
-            // Если название пустое, ничего не сохраняем
             return
         }
         
@@ -92,15 +93,19 @@ class AddEditTaskViewController: UIViewController {
         }
         
         if isEditMode {
-            // Обновляем существующую задачу
             guard let taskId = taskToEdit?.id else { return }
             CoreDataService.shared.updateTask(id: taskId, title: title, description: description) {
-                // completion не нужен, так как мы уже уходим с экрана
+                // НОВОЕ: Отправляем уведомление ПОСЛЕ завершения сохранения
+                DispatchQueue.main.async {
+                    NotificationCenter.default.post(name: .taskDidUpdate, object: nil)
+                }
             }
         } else {
-            // Создаем новую задачу
             CoreDataService.shared.createTask(title: title, description: description) {
-                // completion не нужен
+                // Для полноты картины сделаем то же самое и при создании
+                DispatchQueue.main.async {
+                    NotificationCenter.default.post(name: .taskDidUpdate, object: nil)
+                }
             }
         }
     }

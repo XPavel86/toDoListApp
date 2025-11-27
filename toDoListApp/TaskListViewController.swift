@@ -23,7 +23,13 @@ final class TaskListViewController: UITableViewController {
     // MARK: - Lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
-        // setupTableView() больше не нужен
+        
+        self.title = "Задачи"
+        
+        // НОВЫЙ КОД: Включаем крупные заголовки для этого экрана
+        self.navigationController?.navigationBar.prefersLargeTitles = true
+        self.navigationItem.largeTitleDisplayMode = .always
+        
         setupSearchBar()
         setupBottomToolbar() // НОВЫЙ МЕТОД
         setupBindings()
@@ -36,6 +42,7 @@ final class TaskListViewController: UITableViewController {
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         viewModel.refreshTasks()
+        updateTaskCountLabel()
     }
 
     deinit {
@@ -48,34 +55,98 @@ final class TaskListViewController: UITableViewController {
         searchBar.placeholder = "Поиск задач"
         searchBar.searchBarStyle = .minimal
     }
+   
+
+    // TaskListViewController.swift
+
+//    private func setupBottomToolbar() {
+//        // 1. Создаем иконку справа (без изменений)
+//        let addButton = UIButton(type: .system)
+//        addButton.setImage(UIImage(systemName: "plus.circle.fill"), for: .normal)
+//        addButton.tintColor = .systemBlue
+//        addButton.addTarget(self, action: #selector(addButtonTapped), for: .touchUpInside)
+//        let iconBarButton = UIBarButtonItem(customView: addButton)
+//        
+//        // 2. Создаем константу для ширины и шрифта (НОВЫЙ ПОДХОД)
+//        let labelFont = UIFont.systemFont(ofSize: 17, weight: .medium)
+//        let longestString = "много Задач"
+//        let stringSize = (longestString as NSString).size(withAttributes: [.font: labelFont]) // Используем константу
+//        let requiredWidth = stringSize.width + 8
+//        
+//        // 3. Создаем лейбл по центру и используем наши константы
+//        taskCountLabel = UILabel()
+//        taskCountLabel.font = labelFont // Используем константу
+//        taskCountLabel.textColor = .label
+//        taskCountLabel.text = viewModel.taskCountString
+//        taskCountLabel.textAlignment = .center
+//
+//        taskCountLabel.translatesAutoresizingMaskIntoConstraints = false
+//        NSLayoutConstraint.activate([
+//            taskCountLabel.widthAnchor.constraint(equalToConstant: requiredWidth)
+//        ])
+//        
+//        let labelBarButton = UIBarButtonItem(customView: taskCountLabel)
+//        
+//        // 4. Создаем "резиновые" отступы (без изменений)
+//        let flexibleSpaceLeft = UIBarButtonItem(barButtonSystemItem: .flexibleSpace, target: nil, action: nil)
+//        let flexibleSpaceRight = UIBarButtonItem(barButtonSystemItem: .flexibleSpace, target: nil, action: nil)
+//        
+//        // 5. Собираем все элементы (без изменений)
+//        self.toolbarItems = [flexibleSpaceLeft, labelBarButton, flexibleSpaceRight, iconBarButton]
+//        
+//        // 6. Показываем toolbar (без изменений)
+//        self.navigationController?.isToolbarHidden = false
+//        self.navigationController?.toolbar.isTranslucent = false
+//    }
     
+    // TaskListViewController.swift
+
     private func setupBottomToolbar() {
-        // 1. Создаем иконку справа
+        // 1. Создаем иконку справа (без изменений)
         let addButton = UIButton(type: .system)
         addButton.setImage(UIImage(systemName: "plus.circle.fill"), for: .normal)
         addButton.tintColor = .systemBlue
         addButton.addTarget(self, action: #selector(addButtonTapped), for: .touchUpInside)
         let iconBarButton = UIBarButtonItem(customView: addButton)
         
-        // 2. Создаем лейбл по центру
+        // 2. Создаем константу для ширины и шрифта, используя стиль .caption1
+        let textStyle = UIFont.TextStyle.caption1 // НОВЫЙ СТИЛЬ
+        let metrics = UIFontMetrics(forTextStyle: textStyle) // НОВЫЙ МЕТРИКС
+        
+        let longestString = "999 Задач"
+        // Рассчитываем размер на основе системного шрифта для этого стиля
+        let stringSize = (longestString as NSString).size(withAttributes: [.font: metrics.scaledFont(for: .systemFont(ofSize: 17, weight: .medium))])
+        let requiredWidth = stringSize.width + 8
+        
+        // 3. Создаем лейбл по центру и используем наш новый стиль
         taskCountLabel = UILabel()
-        taskCountLabel.font = .systemFont(ofSize: 17, weight: .medium)
+        // Применяем масштабируемый шрифт
+        taskCountLabel.font = metrics.scaledFont(for: .systemFont(ofSize: 15, weight: .medium))
         taskCountLabel.textColor = .label
+        taskCountLabel.textAlignment = .center
         taskCountLabel.text = viewModel.taskCountString
+        
+        taskCountLabel.translatesAutoresizingMaskIntoConstraints = false
+        NSLayoutConstraint.activate([
+            taskCountLabel.widthAnchor.constraint(equalToConstant: requiredWidth)
+        ])
+        
         let labelBarButton = UIBarButtonItem(customView: taskCountLabel)
         
-        // 3. Создаем "резиновые" отступы
+        // 4. Создаем "резиновые" отступы (без изменений)
         let flexibleSpaceLeft = UIBarButtonItem(barButtonSystemItem: .flexibleSpace, target: nil, action: nil)
         let flexibleSpaceRight = UIBarButtonItem(barButtonSystemItem: .flexibleSpace, target: nil, action: nil)
         
-        // 4. Собираем все элементы
+        // 5. Собираем все элементы (без изменений)
         self.toolbarItems = [flexibleSpaceLeft, labelBarButton, flexibleSpaceRight, iconBarButton]
         
-        taskCountLabel.setContentCompressionResistancePriority(.required, for: .horizontal)
-        
-        // 5. Показываем toolbar
+        // 6. Показываем toolbar (без изменений)
         self.navigationController?.isToolbarHidden = false
         self.navigationController?.toolbar.isTranslucent = false
+    }
+    
+    private func updateTaskCountLabel() {
+        taskCountLabel.text = viewModel.taskCountString
     }
     
     @objc private func addButtonTapped() {
@@ -91,6 +162,13 @@ final class TaskListViewController: UITableViewController {
             name: .initialDataDidLoad,
             object: nil
         )
+        
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(handleTaskUpdate),
+            name: .taskDidUpdate,
+            object: nil
+        )
     }
 
     @objc private func handleInitialDataLoad() {
@@ -98,11 +176,16 @@ final class TaskListViewController: UITableViewController {
         viewModel.fetchTasks()
     }
     
+    @objc private func handleTaskUpdate() {
+        print("Получено уведомление об обновлении задачи. Обновляем UI.")
+        viewModel.refreshTasks()
+    }
+    
     private func setupBindings() {
         viewModel.onDataUpdated = { [weak self] in
             DispatchQueue.main.async {
+                self?.updateTaskCountLabel()
                 self?.tableView.reloadData()
-                self?.taskCountLabel.text = self?.viewModel.taskCountString
             }
         }
         
