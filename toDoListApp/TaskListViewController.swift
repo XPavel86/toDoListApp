@@ -4,15 +4,18 @@
 //
 //  Created by Pavel Dolgopolov on 24.11.2025.
 //
-
+// TaskListViewController.swift
 import UIKit
 
-class TaskListViewController: UIViewController {
+// Меняем родительский класс и делаем его final
+final class TaskListViewController: UITableViewController {
 
     // MARK: - IB Outlets
-    @IBOutlet var tableView: UITableView!
+    // tableView больше не нужен, он наследуется от UITableViewController
     @IBOutlet var searchBar: UISearchBar!
-    @IBOutlet var taskCountLabel: UILabel!
+    
+    // taskCountLabel теперь создается программно
+    private var taskCountLabel: UILabel!
     
     // MARK: - Properties
     private let viewModel = TaskListViewModel()
@@ -20,9 +23,14 @@ class TaskListViewController: UIViewController {
     // MARK: - Lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
-        setupUI()
+        // setupTableView() больше не нужен
+        setupSearchBar()
+        setupBottomToolbar() // НОВЫЙ МЕТОД
         setupBindings()
         setupNotifications()
+        
+        // Регистрируем нашу программную ячейку
+        tableView.register(TaskTableViewCell.self, forCellReuseIdentifier: TaskTableViewCell.identifier)
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -35,28 +43,45 @@ class TaskListViewController: UIViewController {
     }
     
     // MARK: - Setup Methods
-    private func setupUI() {
-        setupCountLabel()
-        setupTableView()
-        setupSearchBar()
-        
-    }
-    
-    private func setupCountLabel() {
-        taskCountLabel.font = .systemFont(ofSize: 17, weight: .medium)
-        taskCountLabel.textColor = .label
-    }
-    
-    private func setupTableView() {
-        tableView.delegate = self
-        tableView.dataSource = self
-        tableView.tableFooterView = UIView()
-    }
-    
     private func setupSearchBar() {
         searchBar.delegate = self
         searchBar.placeholder = "Поиск задач"
         searchBar.searchBarStyle = .minimal
+    }
+    
+    private func setupBottomToolbar() {
+        // 1. Создаем иконку справа
+        let addButton = UIButton(type: .system)
+        addButton.setImage(UIImage(systemName: "plus.circle.fill"), for: .normal)
+        addButton.tintColor = .systemBlue
+        addButton.addTarget(self, action: #selector(addButtonTapped), for: .touchUpInside)
+        let iconBarButton = UIBarButtonItem(customView: addButton)
+        
+        // 2. Создаем лейбл по центру
+        taskCountLabel = UILabel()
+        taskCountLabel.font = .systemFont(ofSize: 17, weight: .medium)
+        taskCountLabel.textColor = .label
+        taskCountLabel.text = viewModel.taskCountString
+        let labelBarButton = UIBarButtonItem(customView: taskCountLabel)
+        
+        // 3. Создаем "резиновые" отступы
+        let flexibleSpaceLeft = UIBarButtonItem(barButtonSystemItem: .flexibleSpace, target: nil, action: nil)
+        let flexibleSpaceRight = UIBarButtonItem(barButtonSystemItem: .flexibleSpace, target: nil, action: nil)
+        
+        // 4. Собираем все элементы
+        self.toolbarItems = [flexibleSpaceLeft, labelBarButton, flexibleSpaceRight, iconBarButton]
+        
+        taskCountLabel.setContentCompressionResistancePriority(.required, for: .horizontal)
+        
+        // 5. Показываем toolbar
+        self.navigationController?.isToolbarHidden = false
+        self.navigationController?.toolbar.isTranslucent = false
+    }
+    
+    @objc private func addButtonTapped() {
+        // Здесь будет логика добавления новой задачи
+        print("Add button tapped")
+        performSegue(withIdentifier: "showAddEditScreen", sender: nil)
     }
     
     private func setupNotifications() {
@@ -74,7 +99,6 @@ class TaskListViewController: UIViewController {
     }
     
     private func setupBindings() {
-        // Полная перезагрузка таблицы
         viewModel.onDataUpdated = { [weak self] in
             DispatchQueue.main.async {
                 self?.tableView.reloadData()
@@ -82,24 +106,19 @@ class TaskListViewController: UIViewController {
             }
         }
         
-        // НОВЫЙ ПОДХОД: Обновляем видимую ячейку напрямую
-           viewModel.onSingleTaskUpdated = { [weak self] taskId in
-               guard let self = self else { return }
-               
-               // Находим indexPath задачи с нужным ID
-               let dataSource = self.viewModel.isSearching ? self.viewModel.filteredTasks : self.viewModel.tasks
-               guard let rowIndex = dataSource.firstIndex(where: { $0.id == taskId }) else { return }
-               let indexPath = IndexPath(row: rowIndex, section: 0)
-               
-               // Проверяем, видима ли ячейка для этого indexPath
-               if let visibleCell = self.tableView.cellForRow(at: indexPath) as? TaskTableViewCell {
-                   // Получаем обновленные данные
-                   let updatedTask = self.viewModel.task(at: indexPath)
-                   // Конфигурируем ячейку прямо сейчас, без перезагрузки
-                   visibleCell.configure(with: updatedTask)
-               }
-           }
-       }
+        viewModel.onSingleTaskUpdated = { [weak self] taskId in
+            guard let self = self else { return }
+            
+            let dataSource = self.viewModel.isSearching ? self.viewModel.filteredTasks : self.viewModel.tasks
+            guard let rowIndex = dataSource.firstIndex(where: { $0.id == taskId }) else { return }
+            let indexPath = IndexPath(row: rowIndex, section: 0)
+            
+            if let visibleCell = self.tableView.cellForRow(at: indexPath) as? TaskTableViewCell {
+                let updatedTask = self.viewModel.task(at: indexPath)
+                visibleCell.configure(with: updatedTask)
+            }
+        }
+    }
     
     // MARK: - Navigation
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
@@ -114,13 +133,15 @@ class TaskListViewController: UIViewController {
 }
 
 // MARK: - UITableViewDataSource
-extension TaskListViewController: UITableViewDataSource {
-    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+extension TaskListViewController {
+    // numberOfRowsInSection и cellForRowAt остаются без изменений, так как они используют self.tableView
+    override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return viewModel.numberOfRowsInSection()
     }
     
-    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: "TaskCellIdentifier", for: indexPath) as! TaskTableViewCell
+    override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        // Используем наш новый identifier
+        let cell = tableView.dequeueReusableCell(withIdentifier: TaskTableViewCell.identifier, for: indexPath) as! TaskTableViewCell
         let task = viewModel.task(at: indexPath)
         cell.configure(with: task)
         
@@ -132,63 +153,15 @@ extension TaskListViewController: UITableViewDataSource {
     }
 }
 
+
 // MARK: - UITableViewDelegate
-extension TaskListViewController: UITableViewDelegate {
-    
-    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+extension TaskListViewController {
+    override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
         performSegue(withIdentifier: "showAddEditScreen", sender: indexPath)
     }
-    
-    // MARK: - Context Menu Configuration
-    func tableView(_ tableView: UITableView,
-                   contextMenuConfigurationForRowAt indexPath: IndexPath,
-                   point: CGPoint) -> UIContextMenuConfiguration? {
-        
-        let task = viewModel.task(at: indexPath)
-
-        return UIContextMenuConfiguration(
-            identifier: indexPath as NSCopying,
-            previewProvider: {
-                TaskPreviewViewController(task: task)
-            },
-            actionProvider: { _ in
-                let edit = UIAction(title: "Редактировать", image: UIImage(systemName: "square.and.pencil")) { [weak self] _ in
-                    self?.performSegue(withIdentifier: "showAddEditScreen", sender: indexPath)
-                }
-
-                let share = UIAction(title: "Поделиться", image: UIImage(systemName: "square.and.arrow.up")) { [weak self] _ in
-                    self?.shareTask(title: task.title)
-                }
-
-                let delete = UIAction(title: "Удалить", image: UIImage(systemName: "trash"), attributes: .destructive) { [weak self] _ in
-                    self?.deleteTask(taskId: task.id)
-                }
-
-                return UIMenu(title: "", children: [edit, share, delete])
-            }
-        )
-    }
-
-    func tableView(_ tableView: UITableView,
-                   contextMenuConfiguration configuration: UIContextMenuConfiguration,
-                   highlightPreviewForItemAt indexPath: IndexPath,
-                   point: CGPoint) -> UITargetedPreview? {
-
-        let target = UIPreviewTarget(
-            container: tableView.superview ?? tableView,
-            center: CGPoint(x: tableView.bounds.midX,
-                            y: tableView.cellForRow(at: indexPath)?.frame.midY ?? point.y)
-        )
-
-        let dummy = UIView(frame: CGRect(x: 0, y: 0, width: 1, height: 1))
-        dummy.backgroundColor = .clear
-        let params = UIPreviewParameters()
-        params.backgroundColor = .clear
-
-        return UITargetedPreview(view: dummy, parameters: params, target: target)
-    }
 }
+
 
 // MARK: - UISearchBarDelegate
 extension TaskListViewController: UISearchBarDelegate {
@@ -231,4 +204,47 @@ extension TaskListViewController {
     private func deleteTask(taskId: UUID) {
         viewModel.deleteTask(for: taskId)
     }
+    
+    override func tableView(_ tableView: UITableView,
+                   contextMenuConfigurationForRowAt indexPath: IndexPath,
+                   point: CGPoint) -> UIContextMenuConfiguration? {
+        
+        // Получаем ячейку и координаты кнопки
+        guard let cell = tableView.cellForRow(at: indexPath) as? TaskTableViewCell else { return nil }
+        let buttonFrame = cell.checkboxButton.frame
+        
+        // Переводим координаты нажатия в систему координат ячейки
+        let pointInCell = tableView.convert(point, to: cell)
+        
+        // ЕСЛИ НАЖАТИЕ ПОПАЛО НА КНОПКУ - НЕ ПОКАЗЫВАТЬ МЕНЮ
+        if buttonFrame.contains(pointInCell) {
+            return nil
+        }
+        
+        // ИНАЧЕ - ПОКАЗЫВАТЬ МЕНЮ КАК ОБЫЧНО
+        let task = viewModel.task(at: indexPath)
+        return UIContextMenuConfiguration(
+            identifier: indexPath as NSCopying,
+            previewProvider: {
+                // Убедитесь, что TaskPreviewViewController существует и настроен
+                TaskPreviewViewController(task: task)
+            },
+            actionProvider: { _ in
+                let edit = UIAction(title: "Редактировать", image: UIImage(systemName: "square.and.pencil")) { [weak self] _ in
+                    self?.performSegue(withIdentifier: "showAddEditScreen", sender: indexPath)
+                }
+
+                let share = UIAction(title: "Поделиться", image: UIImage(systemName: "square.and.arrow.up")) { [weak self] _ in
+                    self?.shareTask(title: task.title)
+                }
+
+                let delete = UIAction(title: "Удалить", image: UIImage(systemName: "trash"), attributes: .destructive) { [weak self] _ in
+                    self?.deleteTask(taskId: task.id)
+                }
+
+                return UIMenu(title: "", children: [edit, share, delete])
+            }
+        )
+    }
+    
 }
