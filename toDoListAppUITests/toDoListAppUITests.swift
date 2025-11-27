@@ -1,6 +1,4 @@
-//
-//  toDoListAppUITests.swift
-//  toDoListAppUITests
+// toDoListAppUITests.swift
 //
 //  Created by Pavel Dolgopolov on 24.11.2025.
 //
@@ -9,34 +7,86 @@ import XCTest
 
 final class toDoListAppUITests: XCTestCase {
 
+    var app: XCUIApplication!
+
     override func setUpWithError() throws {
-        // Put setup code here. This method is called before the invocation of each test method in the class.
-
-        // In UI tests it is usually best to stop immediately when a failure occurs.
+        // Этот метод вызывается перед каждым тестом.
+        
+        // Гарантируем, что тест остановится при первой ошибке.
         continueAfterFailure = false
-
-        // In UI tests it’s important to set the initial state - such as interface orientation - required for your tests before they run. The setUp method is a good place to do this.
+        
+        // ГЛАВНОЕ: Создаем экземпляр приложения, который будет использоваться в тестах.
+        // Он не будет запущен здесь, каждый тест запустит его сам со своими аргументами.
+        app = XCUIApplication()
+        
+        // ВАЖНО: Перед каждым тестом завершаем работу приложения,
+        // чтобы обеспечить чистое состояние и избежать влияния одного теста на другой.
+        app.terminate()
     }
 
     override func tearDownWithError() throws {
-        // Put teardown code here. This method is called after the invocation of each test method in the class.
+        // Этот метод вызывается после каждого теста.
+        app = nil // Освобождаем ссылку
     }
 
-    @MainActor
-    func testExample() throws {
-        // UI tests must launch the application that they test.
-        let app = XCUIApplication()
+    // Наш первый реальный тест
+    func testAddNewTask() throws {
+        // Arrange (Подготовка)
+        // Устанавливаем аргументы специально для ЭТОГО теста
+        app.launchArguments = ["UI_TESTING"]
         app.launch()
+        
+        // 1. Ждем, пока главный экран загрузится.
+        let taskCountLabel = app.staticTexts["taskCountLabel"]
+        XCTAssertTrue(taskCountLabel.waitForExistence(timeout: 5), "Главный экран не загрузился или счетчик задач не найден")
 
-        // Use XCTAssert and related functions to verify your tests produce the correct results.
+        // Act (Действие)
+        // 2. Находим и нажимаем кнопку "+".
+        let addButton = app.buttons["addButton"]
+        XCTAssertTrue(addButton.exists, "Кнопка добавления не найдена")
+        addButton.tap()
+
+        // 3. Теперь мы на экране редактирования. Заполняем поля.
+        let titleTextField = app.textFields["titleTextField"]
+        XCTAssertTrue(titleTextField.waitForExistence(timeout: 3), "Экран редактирования не загрузился или поле для заголовка не найдено")
+        titleTextField.tap()
+        titleTextField.typeText("Задача из UI теста")
+
+        let descriptionTextView = app.textViews["descriptionTextView"]
+        XCTAssertTrue(descriptionTextView.exists, "Поле для описания не найдено")
+        descriptionTextView.tap()
+        descriptionTextView.typeText("Это описание было создано автоматически.")
+
+        // 4. Возвращаемся на главный экран, чтобы сохранить задачу.
+        let backButton = app.navigationBars.buttons["Задачи"]
+        XCTAssertTrue(backButton.exists, "Кнопка 'Назад' не найдена")
+        backButton.tap()
+
+        // Assert (Проверка)
+        // 5. Проверяем, что мы вернулись на главный экран и задача появилась.
+        let newTaskTitle = app.staticTexts["Задача из UI теста"]
+        XCTAssertTrue(newTaskTitle.waitForExistence(timeout: 3), "Новая задача не появилась в списке")
+
+        // 6. Проверяем, что счетчик задач обновился.
+        let updatedTaskCountLabel = app.staticTexts["taskCountLabel"]
+        XCTAssertTrue(updatedTaskCountLabel.exists, "Счетчик задач не обновлен")
+        // Можно дополнительно проверить текст, если нужно
+//        XCTAssertEqual(updatedTaskCountLabel.label as? String, "1 Задача", "Неверное количество задач")
     }
-
+    
+    // Тест производительности запуска
     @MainActor
     func testLaunchPerformance() throws {
         if #available(macOS 10.15, iOS 13.0, tvOS 13.0, watchOS 7.0, *) {
-            // This measures how long it takes to launch your application.
+            // Создаем НОВЫЙ, чистый экземпляр приложения для теста производительности
+            let performanceApp = XCUIApplication()
+            
+            // Устанавливаем аргументы, чтобы НЕ загружать данные из сети для чистого замера
+            performanceApp.launchArguments = ["UI_TESTING"]
+            
+            // Используем этот новый экземпляр в блоке measure
             measure(metrics: [XCTApplicationLaunchMetric()]) {
-                XCUIApplication().launch()
+                performanceApp.launch()
             }
         }
     }

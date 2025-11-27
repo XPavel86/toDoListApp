@@ -56,55 +56,12 @@ final class TaskListViewController: UITableViewController {
         searchBar.searchBarStyle = .minimal
     }
    
-
-    // TaskListViewController.swift
-
-//    private func setupBottomToolbar() {
-//        // 1. Создаем иконку справа (без изменений)
-//        let addButton = UIButton(type: .system)
-//        addButton.setImage(UIImage(systemName: "plus.circle.fill"), for: .normal)
-//        addButton.tintColor = .systemBlue
-//        addButton.addTarget(self, action: #selector(addButtonTapped), for: .touchUpInside)
-//        let iconBarButton = UIBarButtonItem(customView: addButton)
-//        
-//        // 2. Создаем константу для ширины и шрифта (НОВЫЙ ПОДХОД)
-//        let labelFont = UIFont.systemFont(ofSize: 17, weight: .medium)
-//        let longestString = "много Задач"
-//        let stringSize = (longestString as NSString).size(withAttributes: [.font: labelFont]) // Используем константу
-//        let requiredWidth = stringSize.width + 8
-//        
-//        // 3. Создаем лейбл по центру и используем наши константы
-//        taskCountLabel = UILabel()
-//        taskCountLabel.font = labelFont // Используем константу
-//        taskCountLabel.textColor = .label
-//        taskCountLabel.text = viewModel.taskCountString
-//        taskCountLabel.textAlignment = .center
-//
-//        taskCountLabel.translatesAutoresizingMaskIntoConstraints = false
-//        NSLayoutConstraint.activate([
-//            taskCountLabel.widthAnchor.constraint(equalToConstant: requiredWidth)
-//        ])
-//        
-//        let labelBarButton = UIBarButtonItem(customView: taskCountLabel)
-//        
-//        // 4. Создаем "резиновые" отступы (без изменений)
-//        let flexibleSpaceLeft = UIBarButtonItem(barButtonSystemItem: .flexibleSpace, target: nil, action: nil)
-//        let flexibleSpaceRight = UIBarButtonItem(barButtonSystemItem: .flexibleSpace, target: nil, action: nil)
-//        
-//        // 5. Собираем все элементы (без изменений)
-//        self.toolbarItems = [flexibleSpaceLeft, labelBarButton, flexibleSpaceRight, iconBarButton]
-//        
-//        // 6. Показываем toolbar (без изменений)
-//        self.navigationController?.isToolbarHidden = false
-//        self.navigationController?.toolbar.isTranslucent = false
-//    }
-    
-    // TaskListViewController.swift
-
     private func setupBottomToolbar() {
         // 1. Создаем иконку справа (без изменений)
+       
         let addButton = UIButton(type: .system)
-        addButton.setImage(UIImage(systemName: "plus.circle.fill"), for: .normal)
+        addButton.accessibilityIdentifier = "addButton"
+        addButton.setImage(UIImage(systemName: "square.and.pencil"), for: .normal)
         addButton.tintColor = .systemBlue
         addButton.addTarget(self, action: #selector(addButtonTapped), for: .touchUpInside)
         let iconBarButton = UIBarButtonItem(customView: addButton)
@@ -113,13 +70,15 @@ final class TaskListViewController: UITableViewController {
         let textStyle = UIFont.TextStyle.caption1 // НОВЫЙ СТИЛЬ
         let metrics = UIFontMetrics(forTextStyle: textStyle) // НОВЫЙ МЕТРИКС
         
-        let longestString = "999 Задач"
+        let longestString = "много Задач"
         // Рассчитываем размер на основе системного шрифта для этого стиля
         let stringSize = (longestString as NSString).size(withAttributes: [.font: metrics.scaledFont(for: .systemFont(ofSize: 17, weight: .medium))])
         let requiredWidth = stringSize.width + 8
         
         // 3. Создаем лейбл по центру и используем наш новый стиль
         taskCountLabel = UILabel()
+        taskCountLabel.accessibilityIdentifier = "taskCountLabel"
+        
         // Применяем масштабируемый шрифт
         taskCountLabel.font = metrics.scaledFont(for: .systemFont(ofSize: 15, weight: .medium))
         taskCountLabel.textColor = .label

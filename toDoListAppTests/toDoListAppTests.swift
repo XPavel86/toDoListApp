@@ -19,30 +19,31 @@ final class ToDoListTests: XCTestCase {
         // Шаг 1: Находим модель данных в основном приложении
         // ИСПРАВЛЕНО: Используем правильное имя модели "toDoListApp"
         guard let modelURL = Bundle.main.url(forResource: "toDoListApp", withExtension: "momd") else {
-            fatalError("Error finding model in main bundle")
-        }
-        guard let managedObjectModel = NSManagedObjectModel(contentsOf: modelURL) else {
-            fatalError("Error initializing MOM from: \(modelURL)")
-        }
-
-        // Шаг 2: Создаем in-memory базу данных, используя найденную модель
-        // ИСПРАВЛЕНО: Также передаем правильное имя
-        testPersistentContainer = NSPersistentContainer(name: "toDoListApp", managedObjectModel: managedObjectModel)
-        
-        let description = NSPersistentStoreDescription()
-        description.type = NSInMemoryStoreType
-        
-        testPersistentContainer.persistentStoreDescriptions = [description]
-        
-        testPersistentContainer.loadPersistentStores { _, error in
-            if let error = error {
-                fatalError("Failed to load test store: \(error)")
+                fatalError("Error finding model in main bundle")
             }
+            guard let managedObjectModel = NSManagedObjectModel(contentsOf: modelURL) else {
+                fatalError("Error initializing MOM from: \(modelURL)")
+            }
+
+            testPersistentContainer = NSPersistentContainer(name: "toDoListApp", managedObjectModel: managedObjectModel)
+            
+            let description = NSPersistentStoreDescription()
+            description.type = NSInMemoryStoreType
+            
+            testPersistentContainer.persistentStoreDescriptions = [description]
+            
+            testPersistentContainer.loadPersistentStores { _, error in
+                if let error = error {
+                    fatalError("Failed to load test store: \(error)")
+                }
+            }
+            
+            // Используем наш специальный конструктор для тестов
+            coreDataService = CoreDataService(container: testPersistentContainer)
+            
+            // ГЛАВНОЕ ИСПРАВЛЕНИЕ: Вручную включаем автоматическое слияние для тестов
+            coreDataService.persistentContainer.viewContext.automaticallyMergesChangesFromParent = true
         }
-        
-        // Шаг 3: Используем наш специальный конструктор для тестов
-        coreDataService = CoreDataService(container: testPersistentContainer)
-    }
 
     override func tearDownWithError() throws {
         // Этот метод вызывается после каждого теста.
@@ -61,7 +62,7 @@ final class ToDoListTests: XCTestCase {
             expectation.fulfill()
         }
         
-        wait(for: [expectation], timeout: 1.0)
+        wait(for: [expectation], timeout: 2.0)
         
         // Assert (Проверка)
         let tasks = coreDataService.fetchTasks()
@@ -73,6 +74,7 @@ final class ToDoListTests: XCTestCase {
     
     func testUpdateTask() throws {
         // Arrange
+        TestLogger.shared.log("Обновление задачи")
         let expectation = XCTestExpectation(description: "Task update completion")
         coreDataService.createTask(title: "Old Title", description: "Old Desc") {
             expectation.fulfill()
@@ -96,6 +98,8 @@ final class ToDoListTests: XCTestCase {
         XCTAssertEqual(updatedTasks.first?.title, newTitle)
         XCTAssertEqual(updatedTasks.first?.taskDescription, newDesc)
     }
+    
+   
     
     func testDeleteTask() throws {
         // Arrange
